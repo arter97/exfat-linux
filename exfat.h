@@ -29,6 +29,34 @@
 #include <linux/kobject.h>
 #include "api.h"
 
+/*************************************************************************
+ * FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
+ *************************************************************************/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
+#include <linux/iversion.h>
+#define INC_IVERSION(x)		(inode_inc_iversion(x))
+#define GET_IVERSION(x)		(inode_peek_iversion_raw(x))
+#define SET_IVERSION(x,y)	(inode_set_iversion(x, y))
+#else
+#define INC_IVERSION(x)		(x->i_version++)
+#define GET_IVERSION(x)		(x->i_version)
+#define SET_IVERSION(x,y)	(x->i_version = y)
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0)
+#define timespec_compat	timespec64
+#define KTIME_GET_REAL_TS ktime_get_real_ts64
+#else
+#define timespec_compat	timespec
+#define KTIME_GET_REAL_TS ktime_get_real_ts
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
+#define EXFAT_IS_SB_RDONLY(sb)	((sb)->s_flags & MS_RDONLY)
+#else
+#define EXFAT_IS_SB_RDONLY(sb)	((sb)->s_flags & SB_RDONLY)
+#endif
+
 /*
  * exfat error flags
  */
@@ -275,9 +303,9 @@ __exfat_msg(struct super_block *sb, const char *lv, int st, const char *fmt, ...
 #define exfat_log_msg(sb, lv, fmt, args...)          \
 	__exfat_msg(sb, lv, 1, fmt, ## args)
 extern void exfat_log_version(void);
-extern void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
+extern void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec_compat *ts,
 				DATE_TIME_T *tp);
-extern void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec *ts,
+extern void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec_compat *ts,
 				DATE_TIME_T *tp);
 extern TIMESTAMP_T *tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tm);
 

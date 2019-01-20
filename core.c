@@ -123,7 +123,7 @@ static s32 __fs_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_s
 	/* skip updating volume dirty flag,
 	 * if this volume has been mounted with read-only
 	 */
-	if (sb->s_flags & MS_RDONLY)
+	if (EXFAT_IS_SB_RDONLY(sb))
 		return 0;
 
 	if (!fsi->pbr_bh) {
@@ -1701,10 +1701,10 @@ s32 fscore_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 		return ret;
 
 	/* check the validation of hint_stat and initialize it if required */
-	if (dir_fid->version != (u32)(inode->i_version & 0xffffffff)) {
+	if (dir_fid->version != (u32)(GET_IVERSION(inode) & 0xffffffff)) {
 		dir_fid->hint_stat.clu = dir.dir;
 		dir_fid->hint_stat.eidx = 0;
-		dir_fid->version = (u32)(inode->i_version & 0xffffffff);
+		dir_fid->version = (u32)(GET_IVERSION(inode) & 0xffffffff);
 		dir_fid->hint_femp.eidx = -1;
 	}
 
