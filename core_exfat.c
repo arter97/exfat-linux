@@ -734,7 +734,7 @@ static s32 exfat_find_dir_entry(struct super_block *sb, FILE_ID_T *fid,
 		CHAIN_T *p_dir, UNI_NAME_T *p_uniname, s32 num_entries, DOS_NAME_T *unused, u32 type)
 {
 	s32 i, rewind = 0, dentry = 0, end_eidx = 0, num_ext = 0, len;
-	s32 order, step, name_len;
+	s32 order, step, name_len = 0;
 	s32 dentries_per_clu, num_empty = 0;
 	u32 entry_type;
 	u16 entry_uniname[16], *uniname = NULL, unichar;
