@@ -97,6 +97,11 @@ config EXFAT_DBG_BUGON
 	depends on EXFAT_FS && EXFAT_DEBUG
 	default n
 
+config EXFAT_DBG_WARNON
+	bool "enable strict WARN_ON() for debugging"
+	depends on EXFAT_FS && EXFAT_DEBUG
+	default n
+
 config EXFAT_STATISTICS
 	bool "enable statistics for bigdata"
 	depends on EXFAT_FS

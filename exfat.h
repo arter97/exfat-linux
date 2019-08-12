@@ -395,6 +395,7 @@ void exfat_debug_check_clusters(struct inode *inode);
 
 #define exfat_debug_check_clusters(inode)
 #define exfat_debug_bug_on(expr)
+#define exfat_debug_warn_on(expr)
 
 #endif /* CONFIG_EXFAT_DEBUG */
 
