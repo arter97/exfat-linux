@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : version.h                                                 */
-/*  PURPOSE : sdFAT File Manager                                        */
+/*  PURPOSE : exFAT File Manager                                        */
 /*                                                                      */
 /************************************************************************/
-#define SDFAT_VERSION	"2.1.10"
+#define EXFAT_VERSION	"2.1.10"

@@ -15,8 +15,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_CONFIG_H
-#define _SDFAT_CONFIG_H
+#ifndef _EXFAT_CONFIG_H
+#define _EXFAT_CONFIG_H
 /*======================================================================*/
 /*                                                                      */
 /*                        FFS CONFIGURATIONS                            */
@@ -31,116 +31,116 @@
 /*----------------------------------------------------------------------*/
 /* Debug/Experimental Config                                            */
 /*----------------------------------------------------------------------*/
-//#define CONFIG_SDFAT_TRACE_IO
-//#define CONFIG_SDFAT_TRACE_LOCK /* Trace elapsed time in lock_super(sb) */
+//#define CONFIG_EXFAT_TRACE_IO
+//#define CONFIG_EXFAT_TRACE_LOCK /* Trace elapsed time in lock_super(sb) */
 
 /*----------------------------------------------------------------------*/
 /* Defragmentation Config                                               */
 /*----------------------------------------------------------------------*/
-//#define	CONFIG_SDFAT_DFR
-//#define	CONFIG_SDFAT_DFR_PACKING
-//#define	CONFIG_SDFAT_DFR_DEBUG
+//#define	CONFIG_EXFAT_DFR
+//#define	CONFIG_EXFAT_DFR_PACKING
+//#define	CONFIG_EXFAT_DFR_DEBUG
 
 /*----------------------------------------------------------------------*/
 /* Config for Kernel equal or newer than 3.7                            */
 /*----------------------------------------------------------------------*/
-#ifndef CONFIG_SDFAT_WRITE_SB_INTERVAL_CSECS
-#define CONFIG_SDFAT_WRITE_SB_INTERVAL_CSECS	(dirty_writeback_interval)
+#ifndef CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS
+#define CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS	(dirty_writeback_interval)
 #endif
 
 /*----------------------------------------------------------------------*/
 /* Default Kconfig                                                      */
 /*----------------------------------------------------------------------*/
 /* default mount options                            */
-#ifndef CONFIG_SDFAT_DEFAULT_CODEPAGE /* if Kconfig lacked codepage */
-#define CONFIG_SDFAT_DEFAULT_CODEPAGE   437
+#ifndef CONFIG_EXFAT_DEFAULT_CODEPAGE /* if Kconfig lacked codepage */
+#define CONFIG_EXFAT_DEFAULT_CODEPAGE   437
 #endif
 
-#ifndef CONFIG_SDFAT_DEFAULT_IOCHARSET /* if Kconfig lacked iocharset */
-#define CONFIG_SDFAT_DEFAULT_IOCHARSET  "utf8"
+#ifndef CONFIG_EXFAT_DEFAULT_IOCHARSET /* if Kconfig lacked iocharset */
+#define CONFIG_EXFAT_DEFAULT_IOCHARSET  "utf8"
 #endif
 
-#ifndef CONFIG_SDFAT_FAT32_SHORTNAME_SEQ /* Shortname ~1, ... ~9 have higher
+#ifndef CONFIG_EXFAT_FAT32_SHORTNAME_SEQ /* Shortname ~1, ... ~9 have higher
 					  * priority (WIN32/VFAT-like)
 					  */
-//#define CONFIG_SDFAT_FAT32_SHORTNAME_SEQ
+//#define CONFIG_EXFAT_FAT32_SHORTNAME_SEQ
 #endif
 
-#ifndef CONFIG_SDFAT_ALIGNED_MPAGE_WRITE
-//#define CONFIG_SDFAT_ALIGNED_MPAGE_WRITE
+#ifndef CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
+//#define CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
 #endif
 
-#ifndef CONFIG_SDFAT_FAT_MIRRORING /* if Kconfig lacked fat-mirroring option */
-#define CONFIG_SDFAT_FAT_MIRRORING /* Write FAT 1, FAT 2 simultaneously */
+#ifndef CONFIG_EXFAT_FAT_MIRRORING /* if Kconfig lacked fat-mirroring option */
+#define CONFIG_EXFAT_FAT_MIRRORING /* Write FAT 1, FAT 2 simultaneously */
 #endif
 
-#ifndef CONFIG_SDFAT_DELAYED_META_DIRTY
-//#define CONFIG_SDFAT_DELAYED_META_DIRTY /* delayed DIR/FAT dirty support */
+#ifndef CONFIG_EXFAT_DELAYED_META_DIRTY
+//#define CONFIG_EXFAT_DELAYED_META_DIRTY /* delayed DIR/FAT dirty support */
 #endif
 
-#ifndef CONFIG_SDFAT_SUPPORT_DIR_SYNC
-//#define CONFIG_SDFAT_SUPPORT_DIR_SYNC /* support DIR_SYNC */
+#ifndef CONFIG_EXFAT_SUPPORT_DIR_SYNC
+//#define CONFIG_EXFAT_SUPPORT_DIR_SYNC /* support DIR_SYNC */
 #endif
 
-#ifndef CONFIG_SDFAT_CHECK_RO_ATTR
-//#define CONFIG_SDFAT_CHECK_RO_ATTR
+#ifndef CONFIG_EXFAT_CHECK_RO_ATTR
+//#define CONFIG_EXFAT_CHECK_RO_ATTR
 #endif
 
-#ifndef CONFIG_SDFAT_RESTRICT_EXT_ONLY_SFN
-#define CONFIG_SDFAT_RESTRICT_EXT_ONLY_SFN
+#ifndef CONFIG_EXFAT_RESTRICT_EXT_ONLY_SFN
+#define CONFIG_EXFAT_RESTRICT_EXT_ONLY_SFN
 #endif
 
-#ifndef CONFIG_SDFAT_ALLOW_LOOKUP_LOSSY_SFN
-//#define CONFIG_SDFAT_ALLOW_LOOKUP_LOSSY_SFN
+#ifndef CONFIG_EXFAT_ALLOW_LOOKUP_LOSSY_SFN
+//#define CONFIG_EXFAT_ALLOW_LOOKUP_LOSSY_SFN
 #endif
 
-#ifndef CONFIG_SDFAT_DBG_SHOW_PID
-//#define CONFIG_SDFAT_DBG_SHOW_PID
+#ifndef CONFIG_EXFAT_DBG_SHOW_PID
+//#define CONFIG_EXFAT_DBG_SHOW_PID
 #endif
 
-#ifndef CONFIG_SDFAT_VIRTUAL_XATTR
-//#define CONFIG_SDFAT_VIRTUAL_XATTR
+#ifndef CONFIG_EXFAT_VIRTUAL_XATTR
+//#define CONFIG_EXFAT_VIRTUAL_XATTR
 #endif
 
-#ifndef CONFIG_SDFAT_SUPPORT_STLOG
-//#define CONFIG_SDFAT_SUPPORT_STLOG
+#ifndef CONFIG_EXFAT_SUPPORT_STLOG
+//#define CONFIG_EXFAT_SUPPORT_STLOG
 #endif
 
-#ifndef CONFIG_SDFAT_DEBUG
+#ifndef CONFIG_EXFAT_DEBUG
 //{
-//#define CONFIG_SDFAT_DEBUG
+//#define CONFIG_EXFAT_DEBUG
 
-#ifndef CONFIG_SDFAT_DBG_IOCTL
-//#define CONFIG_SDFAT_DBG_IOCTL
+#ifndef CONFIG_EXFAT_DBG_IOCTL
+//#define CONFIG_EXFAT_DBG_IOCTL
 #endif
 
-#ifndef CONFIG_SDFAT_DBG_MSG
-//#define CONFIG_SDFAT_DBG_MSG
+#ifndef CONFIG_EXFAT_DBG_MSG
+//#define CONFIG_EXFAT_DBG_MSG
 #endif
 
-#ifndef CONFIG_SDFAT_DBG_CAREFUL
-//#define CONFIG_SDFAT_DBG_CAREFUL
+#ifndef CONFIG_EXFAT_DBG_CAREFUL
+//#define CONFIG_EXFAT_DBG_CAREFUL
 #endif
 
-#ifndef CONFIG_SDFAT_DBG_BUGON
-//#define CONFIG_SDFAT_DBG_BUGON
+#ifndef CONFIG_EXFAT_DBG_BUGON
+//#define CONFIG_EXFAT_DBG_BUGON
 #endif
 
-#ifndef CONFIG_SDFAT_DBG_WARNON
-//#define CONFIG_SDFAT_DBG_WARNON
+#ifndef CONFIG_EXFAT_DBG_WARNON
+//#define CONFIG_EXFAT_DBG_WARNON
 #endif
 //}
-#endif /* CONFIG_SDFAT_DEBUG */
+#endif /* CONFIG_EXFAT_DEBUG */
 
 
-#ifndef	CONFIG_SDFAT_TRACE_SB_LOCK
-//#define CONFIG_SDFAT_TRACE_SB_LOCK
+#ifndef	CONFIG_EXFAT_TRACE_SB_LOCK
+//#define CONFIG_EXFAT_TRACE_SB_LOCK
 #endif
 
-#ifndef	CONFIG_SDFAT_TRACE_ELAPSED_TIME
-//#define CONFIG_SDFAT_TRACE_ELAPSED_TIME
+#ifndef	CONFIG_EXFAT_TRACE_ELAPSED_TIME
+//#define CONFIG_EXFAT_TRACE_ELAPSED_TIME
 #endif
 
-#endif /* _SDFAT_CONFIG_H */
+#endif /* _EXFAT_CONFIG_H */
 
 /* end of config.h */

@@ -33,7 +33,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : core.c                                                    */
-/*  PURPOSE : sdFAT glue layer for supporting VFS                       */
+/*  PURPOSE : exFAT glue layer for supporting VFS                       */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -66,9 +66,9 @@
 #include <linux/aio.h>
 #endif
 
-#include "sdfat.h"
+#include "exfat.h"
 
-#ifdef CONFIG_SDFAT_ALIGNED_MPAGE_WRITE
+#ifdef CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
 
 /*************************************************************************
  * INNER FUNCTIONS FOR FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
@@ -88,25 +88,25 @@ static inline void bio_set_dev(struct bio *bio, struct block_device *bdev)
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
-static inline void __sdfat_clean_bdev_aliases(struct block_device *bdev, sector_t block)
+static inline void __exfat_clean_bdev_aliases(struct block_device *bdev, sector_t block)
 {
 	clean_bdev_aliases(bdev, block, 1);
 }
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(4,10,0) */
-static inline void __sdfat_clean_bdev_aliases(struct block_device *bdev, sector_t block)
+static inline void __exfat_clean_bdev_aliases(struct block_device *bdev, sector_t block)
 {
 	unmap_underlying_metadata(bdev, block);
 }
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
-static inline void __sdfat_submit_bio_write2(int flags, struct bio *bio)
+static inline void __exfat_submit_bio_write2(int flags, struct bio *bio)
 {
 	bio_set_op_attrs(bio, REQ_OP_WRITE, flags);
 	submit_bio(bio);
 }
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0) */
-static inline void __sdfat_submit_bio_write2(int flags, struct bio *bio)
+static inline void __exfat_submit_bio_write2(int flags, struct bio *bio)
 {
 	submit_bio(WRITE | flags, bio);
 }
@@ -122,42 +122,42 @@ static inline int bio_get_nr_vecs(struct block_device *bdev)
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)
-static inline sector_t __sdfat_bio_sector(struct bio *bio)
+static inline sector_t __exfat_bio_sector(struct bio *bio)
 {
 	return bio->bi_iter.bi_sector;
 }
 
-static inline void __sdfat_set_bio_sector(struct bio *bio, sector_t sector)
+static inline void __exfat_set_bio_sector(struct bio *bio, sector_t sector)
 {
 	bio->bi_iter.bi_sector = sector;
 }
 
-static inline unsigned int __sdfat_bio_size(struct bio *bio)
+static inline unsigned int __exfat_bio_size(struct bio *bio)
 {
 	return bio->bi_iter.bi_size;
 }
 
-static inline void __sdfat_set_bio_size(struct bio *bio, unsigned int size)
+static inline void __exfat_set_bio_size(struct bio *bio, unsigned int size)
 {
 	bio->bi_iter.bi_size = size;
 }
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) */
-static inline sector_t __sdfat_bio_sector(struct bio *bio)
+static inline sector_t __exfat_bio_sector(struct bio *bio)
 {
 	return bio->bi_sector;
 }
 
-static inline void __sdfat_set_bio_sector(struct bio *bio, sector_t sector)
+static inline void __exfat_set_bio_sector(struct bio *bio, sector_t sector)
 {
 	bio->bi_sector = sector;
 }
 
-static inline unsigned int __sdfat_bio_size(struct bio *bio)
+static inline unsigned int __exfat_bio_size(struct bio *bio)
 {
 	return bio->bi_size;
 }
 
-static inline void __sdfat_set_bio_size(struct bio *bio, unsigned int size)
+static inline void __exfat_set_bio_size(struct bio *bio, unsigned int size)
 {
 	bio->bi_size = size;
 }
@@ -186,13 +186,13 @@ static void mpage_write_end_io(struct bio *bio, int err)
 #endif
 
 /* __check_dfr_on() and __dfr_writepage_end_io() functions
- * are copied from sdfat.c
+ * are copied from exfat.c
  * Each function should be same perfectly
  */
 static inline int __check_dfr_on(struct inode *inode, loff_t start, loff_t end, const char *fname)
 {
-#ifdef	CONFIG_SDFAT_DFR
-	struct defrag_info *ino_dfr = &(SDFAT_I(inode)->dfr_info);
+#ifdef	CONFIG_EXFAT_DFR
+	struct defrag_info *ino_dfr = &(EXFAT_I(inode)->dfr_info);
 
 	if ((atomic_read(&ino_dfr->stat) == DFR_INO_STAT_REQ) &&
 			fsapi_dfr_check_dfr_on(inode, start, end, 0, fname))
@@ -203,8 +203,8 @@ static inline int __check_dfr_on(struct inode *inode, loff_t start, loff_t end, 
 
 static inline int __dfr_writepage_end_io(struct page *page)
 {
-#ifdef	CONFIG_SDFAT_DFR
-	struct defrag_info *ino_dfr = &(SDFAT_I(page->mapping->host)->dfr_info);
+#ifdef	CONFIG_EXFAT_DFR
+	struct defrag_info *ino_dfr = &(EXFAT_I(page->mapping->host)->dfr_info);
 
 	if (atomic_read(&ino_dfr->stat) == DFR_INO_STAT_REQ)
 		fsapi_dfr_writepage_endio(page);
@@ -287,7 +287,7 @@ static void __mpage_write_end_io(struct bio *bio, int err)
 static struct bio *mpage_bio_submit_write(int flags, struct bio *bio)
 {
 	bio->bi_end_io = mpage_write_end_io;
-	__sdfat_submit_bio_write2(flags, bio);
+	__exfat_submit_bio_write2(flags, bio);
 	return NULL;
 }
 
@@ -307,12 +307,12 @@ mpage_alloc(struct block_device *bdev,
 
 	if (bio) {
 		bio_set_dev(bio, bdev);
-		__sdfat_set_bio_sector(bio, first_sector);
+		__exfat_set_bio_sector(bio, first_sector);
 	}
 	return bio;
 }
 
-static int sdfat_mpage_writepage(struct page *page,
+static int exfat_mpage_writepage(struct page *page,
 		struct writeback_control *wbc, void *data)
 {
 	struct mpage_data *mpd = data;
@@ -390,7 +390,7 @@ static int sdfat_mpage_writepage(struct page *page,
 
 				if (buffer_new(bh)) {
 					clear_buffer_new(bh);
-					__sdfat_clean_bdev_aliases(bh->b_bdev, bh->b_blocknr);
+					__exfat_clean_bdev_aliases(bh->b_bdev, bh->b_blocknr);
 				}
 			}
 
@@ -440,7 +440,7 @@ static int sdfat_mpage_writepage(struct page *page,
 			goto confused;
 
 		if (buffer_new(&map_bh))
-			__sdfat_clean_bdev_aliases(map_bh.b_bdev, map_bh.b_blocknr);
+			__exfat_clean_bdev_aliases(map_bh.b_bdev, map_bh.b_blocknr);
 		if (buffer_boundary(&map_bh)) {
 			boundary_block = map_bh.b_blocknr;
 			boundary_bdev = map_bh.b_bdev;
@@ -486,7 +486,7 @@ page_is_mapped:
 	/*
 	 * This page will go to BIO.  Do we need to send this BIO off first?
 	 *
-	 * REMARK : added ELSE_IF for ALIGNMENT_MPAGE_WRITE of SDFAT
+	 * REMARK : added ELSE_IF for ALIGNMENT_MPAGE_WRITE of EXFAT
 	 */
 	if (bio) {
 		if (mpd->last_block_in_bio != blocks[0] - 1) {
@@ -494,16 +494,16 @@ page_is_mapped:
 		} else if (mpd->size_to_align) {
 			unsigned int mask = mpd->size_to_align - 1;
 			sector_t max_end_block =
-				(__sdfat_bio_sector(bio) & ~(mask)) + mask;
+				(__exfat_bio_sector(bio) & ~(mask)) + mask;
 
-			if ((__sdfat_bio_size(bio) != (1 << (mask + 1))) &&
+			if ((__exfat_bio_size(bio) != (1 << (mask + 1))) &&
 				(mpd->last_block_in_bio == max_end_block)) {
 				MMSG("%s(inode:%p) alignment mpage_bio_submit"
 					"(start:%u, len:%u aligned:%u)\n",
 					__func__, inode,
-					(unsigned int)__sdfat_bio_sector(bio),
+					(unsigned int)__exfat_bio_sector(bio),
 					(unsigned int)(mpd->last_block_in_bio -
-						__sdfat_bio_sector(bio) + 1),
+						__exfat_bio_sector(bio) + 1),
 					(unsigned int)mpd->size_to_align);
 				bio = mpage_bio_submit_write(REQ_NOMERGE, bio);
 			}
@@ -609,7 +609,7 @@ out:
 	return ret;
 }
 
-int sdfat_mpage_writepages(struct address_space *mapping,
+int exfat_mpage_writepages(struct address_space *mapping,
 			struct writeback_control *wbc, get_block_t *get_block)
 {
 	struct blk_plug plug;
@@ -624,12 +624,12 @@ int sdfat_mpage_writepages(struct address_space *mapping,
 
 	BUG_ON(!get_block);
 	blk_start_plug(&plug);
-	ret = write_cache_pages(mapping, wbc, sdfat_mpage_writepage, &mpd);
+	ret = write_cache_pages(mapping, wbc, exfat_mpage_writepage, &mpd);
 	if (mpd.bio)
 		mpage_bio_submit_write(0, mpd.bio);
 	blk_finish_plug(&plug);
 	return ret;
 }
 
-#endif /* CONFIG_SDFAT_ALIGNED_MPAGE_WRITE */
+#endif /* CONFIG_EXFAT_ALIGNED_MPAGE_WRITE */
 

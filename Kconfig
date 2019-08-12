@@ -1,4 +1,4 @@
-config SDFAT_FS
+config EXFAT_FS
 	tristate
 	default y
 	select NLS
@@ -6,98 +6,98 @@ config SDFAT_FS
 	select NLS_CODEPAGE_437
 	select NLS_ISO8859_1
 	help
-	  If you want to use the sdFAT file system, then you must say Y or M
-	  here to inlucde sdFAT support.
-	  sdFAT is unified FAT-based file system which supports not only fat12/
-	  16/32 with vfat but also exfat. sdFAT supports winnt short-name rule.
+	  If you want to use the exFAT file system, then you must say Y or M
+	  here to inlucde exFAT support.
+	  exFAT is unified FAT-based file system which supports not only fat12/
+	  16/32 with vfat but also exfat. exFAT supports winnt short-name rule.
 	  (winnt: emulate the Windows NT rule for display/create.)
 
 	  To compile this as a module, choose M here: the module will be called
-	  sdfat_core and sdfat_fs.
+	  exfat_core and exfat_fs.
 
-config SDFAT_DELAYED_META_DIRTY
+config EXFAT_DELAYED_META_DIRTY
 	bool "Enable delayed metadata dirty"
 	default y
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	help
 	  If you enable this feature, metadata(FAT/Directory entry) is updated
 	  by flush thread.
 
-config SDFAT_SUPPORT_DIR_SYNC
+config EXFAT_SUPPORT_DIR_SYNC
 	bool "Enable supporting dir sync"
 	default n
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	help
 	  If you enable this feature, the modification for directory operation
 	  is written to a storage at once.
 
-config SDFAT_DEFAULT_CODEPAGE
-	int "Default codepage for sdFAT"
+config EXFAT_DEFAULT_CODEPAGE
+	int "Default codepage for exFAT"
 	default 437
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	help
-	  This option should be set to the codepage of your sdFAT filesystems.
+	  This option should be set to the codepage of your exFAT filesystems.
 
-config SDFAT_DEFAULT_IOCHARSET
-	string "Default iocharset for sdFAT"
+config EXFAT_DEFAULT_IOCHARSET
+	string "Default iocharset for exFAT"
 	default "utf8"
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	help
 	  Set this to the default input/output character set you'd
-	  like sdFAT to use. It should probably match the character set
-	  that most of your sdFAT filesystems use, and can be overridden
-	  with the "iocharset" mount option for sdFAT filesystems.
+	  like exFAT to use. It should probably match the character set
+	  that most of your exFAT filesystems use, and can be overridden
+	  with the "iocharset" mount option for exFAT filesystems.
 
-config SDFAT_CHECK_RO_ATTR
+config EXFAT_CHECK_RO_ATTR
 	bool "Check read-only attribute"
 	default n
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 
-config SDFAT_ALIGNED_MPAGE_WRITE
+config EXFAT_ALIGNED_MPAGE_WRITE
 	bool "Enable supporting aligned mpage_write"
 	default y
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 
-config SDFAT_VIRTUAL_XATTR
-	bool "Virtual xattr support for sdFAT"
+config EXFAT_VIRTUAL_XATTR
+	bool "Virtual xattr support for exFAT"
 	default y
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	help
 	  To support virtual xattr.
 
-config SDFAT_VIRTUAL_XATTR_SELINUX_LABEL
+config EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
 	string "Default string for SELinux label"
 	default "u:object_r:sdcard_external:s0"
-	depends on SDFAT_FS && SDFAT_VIRTUAL_XATTR
+	depends on EXFAT_FS && EXFAT_VIRTUAL_XATTR
 	help
 	  Set this to the default string for SELinux label.
 
-config SDFAT_SUPPORT_STLOG
+config EXFAT_SUPPORT_STLOG
 	bool "Enable storage log"
 	default y
-	depends on SDFAT_FS && PROC_STLOG
+	depends on EXFAT_FS && PROC_STLOG
 
-config SDFAT_DEBUG
+config EXFAT_DEBUG
 	bool "enable debug features"
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	default y
 
-config SDFAT_DBG_IOCTL
+config EXFAT_DBG_IOCTL
 	bool "enable debug-ioctl features"
-	depends on SDFAT_FS && SDFAT_DEBUG
+	depends on EXFAT_FS && EXFAT_DEBUG
 	default n
 
-config SDFAT_DBG_MSG
+config EXFAT_DBG_MSG
 	bool "enable debug messages"
-	depends on SDFAT_FS && SDFAT_DEBUG
+	depends on EXFAT_FS && EXFAT_DEBUG
 	default y
 
-config SDFAT_DBG_BUGON
+config EXFAT_DBG_BUGON
 	bool "enable strict BUG_ON() for debugging"
-	depends on SDFAT_FS && SDFAT_DEBUG
+	depends on EXFAT_FS && EXFAT_DEBUG
 	default n
 
-config SDFAT_STATISTICS
+config EXFAT_STATISTICS
 	bool "enable statistics for bigdata"
-	depends on SDFAT_FS
+	depends on EXFAT_FS
 	default y

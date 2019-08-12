@@ -15,11 +15,11 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_API_H
-#define _SDFAT_API_H
+#ifndef _EXFAT_API_H
+#define _EXFAT_API_H
 
 #include "config.h"
-#include "sdfat_fs.h"
+#include "exfat_fs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,10 +67,10 @@ extern "C" {
 #define TYPE_ALL                0x0FFF
 
 /* eio values */
-#define SDFAT_EIO_NONE		(0x00000000)
-#define SDFAT_EIO_READ		(0x00000001)
-#define SDFAT_EIO_WRITE		(0x00000002)
-#define SDFAT_EIO_BDI		(0x00000004)
+#define EXFAT_EIO_NONE		(0x00000000)
+#define EXFAT_EIO_READ		(0x00000001)
+#define EXFAT_EIO_WRITE		(0x00000002)
+#define EXFAT_EIO_BDI		(0x00000004)
 
 /* modes for volume allocation unit status */
 #define VOL_AU_STAT_TOTAL	(0)
@@ -358,7 +358,7 @@ void fsapi_invalidate_extent(struct inode *inode);
 /* bdev management */
 s32 fsapi_check_bdi_valid(struct super_block *sb);
 
-#ifdef CONFIG_SDFAT_DFR
+#ifdef CONFIG_EXFAT_DFR
 /*----------------------------------------------------------------------*/
 /*  Defragmentation related                                             */
 /*----------------------------------------------------------------------*/
@@ -384,17 +384,17 @@ s32 fsapi_dfr_check_dfr_required(struct super_block *sb, int *totalau, int *clea
 s32 fsapi_dfr_check_dfr_on(struct inode *inode, loff_t start, loff_t end, s32 cancel, const char *caller);
 
 
-#ifdef CONFIG_SDFAT_DFR_DEBUG
+#ifdef CONFIG_EXFAT_DFR_DEBUG
 void fsapi_dfr_spo_test(struct super_block *sb, int flag, const char *caller);
-#endif	/* CONFIG_SDFAT_DFR_DEBUG */
+#endif	/* CONFIG_EXFAT_DFR_DEBUG */
 
-#endif	/* CONFIG_SDFAT_DFR */
+#endif	/* CONFIG_EXFAT_DFR */
 
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* _SDFAT_API_H */
+#endif /* _EXFAT_API_H */
 
 /* end of api.h */

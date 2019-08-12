@@ -15,8 +15,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_CORE_H
-#define _SDFAT_CORE_H
+#ifndef _EXFAT_CORE_H
+#define _EXFAT_CORE_H
 
 #include <asm/byteorder.h>
 
@@ -119,7 +119,7 @@ void get_uniname_from_dos_entry(struct super_block *sb, DOS_DENTRY_T *ep, UNI_NA
 /* file operation functions */
 s32 walk_fat_chain(struct super_block *sb, CHAIN_T *p_dir, u32 byte_offset, u32 *clu);
 
-/* sdfat/cache.c */
+/* exfat/cache.c */
 s32  meta_cache_init(struct super_block *sb);
 s32  meta_cache_shutdown(struct super_block *sb);
 u8 *fcache_getblk(struct super_block *sb, u64 sec);
@@ -216,6 +216,6 @@ void	set_sb_dirty(struct super_block *sb);
 }
 #endif /* __cplusplus */
 
-#endif /* _SDFAT_CORE_H */
+#endif /* _EXFAT_CORE_H */
 
 /* end of core.h */

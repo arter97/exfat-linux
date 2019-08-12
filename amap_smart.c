@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : amap_smart.c                                              */
-/*  PURPOSE : FAT32 Smart allocation code for sdFAT                     */
+/*  PURPOSE : FAT32 Smart allocation code for exFAT                     */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -30,7 +30,7 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 #include "amap_smart.h"
 
@@ -318,7 +318,7 @@ AU_INFO_T *amap_pop_cold_au_largest(AMAP_T *amap, uint16_t start_fclu)
 /* Create AMAP related data structure (mount time) */
 int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hidden_sect)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	AMAP_T *amap;
 	int total_used_clusters;
 	int n_au_table = 0;
@@ -334,20 +334,20 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 
 	/* Check conditions */
 	if (fsi->vol_type != FAT32) {
-		sdfat_msg(sb, KERN_ERR, "smart allocation is only available "
+		exfat_msg(sb, KERN_ERR, "smart allocation is only available "
 					"with fat32-fs");
 		return -ENOTSUPP;
 	}
 
 	if (fsi->num_sectors < AMAP_MIN_SUPPORT_SECTORS) {
-		sdfat_msg(sb, KERN_ERR, "smart allocation is only available "
+		exfat_msg(sb, KERN_ERR, "smart allocation is only available "
 			"with sectors above %d", AMAP_MIN_SUPPORT_SECTORS);
 		return -ENOTSUPP;
 	}
 
 	/* AU size must be a multiple of clu_size */
 	if ((sect_per_au <= 0) || (sect_per_au & (fsi->sect_per_clus - 1))) {
-		sdfat_msg(sb, KERN_ERR,
+		exfat_msg(sb, KERN_ERR,
 			"invalid AU size (sect_per_au : %u, "
 			"sect_per_clus : %u) "
 			"please re-format for performance.",
@@ -357,7 +357,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 
 	/* the start sector of this partition must be a multiple of clu_size */
 	if (misaligned_sect & (fsi->sect_per_clus - 1)) {
-		sdfat_msg(sb, KERN_ERR,
+		exfat_msg(sb, KERN_ERR,
 			"misaligned part (start sect : %u, "
 			"sect_per_clus : %u) "
 			"please re-format for performance.",
@@ -367,7 +367,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 
 	/* data start sector must be a multiple of clu_size */
 	if (fsi->data_start_sector & (fsi->sect_per_clus - 1)) {
-		sdfat_msg(sb, KERN_ERR,
+		exfat_msg(sb, KERN_ERR,
 			"misaligned data area (start sect : %llu, "
 			"sect_per_clus : %u) "
 			"please re-format for performance.",
@@ -401,7 +401,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 	 * the size of cluster is at least 4KB if the size of AU is 4MB
 	 */
 	if (amap->clusters_per_au > MAX_CLU_PER_AU) {
-		sdfat_log_msg(sb, KERN_INFO,
+		exfat_log_msg(sb, KERN_INFO,
 			"too many clusters per AU (clus/au:%d > %d).",
 		       amap->clusters_per_au,
 		       MAX_CLU_PER_AU);
@@ -421,7 +421,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 	n_au_table = (amap->n_au + N_AU_PER_TABLE - 1) / N_AU_PER_TABLE;
 	amap->au_table = kmalloc(sizeof(AU_INFO_T *) * n_au_table, GFP_NOIO);
 	if (!amap->au_table) {
-		sdfat_msg(sb, KERN_ERR,
+		exfat_msg(sb, KERN_ERR,
 			"failed to alloc amap->au_table\n");
 		kfree(amap);
 		return -ENOMEM;
@@ -434,7 +434,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 	amap->fclu_order = get_order(sizeof(FCLU_NODE_T) * amap->clusters_per_au);
 
 	// XXX: amap->clusters_per_au limitation is 512 (w/ 8 byte list_head)
-	sdfat_log_msg(sb, KERN_INFO, "page orders for AU nodes : %d "
+	exfat_log_msg(sb, KERN_INFO, "page orders for AU nodes : %d "
 			"(clus_per_au : %d, node_size : %lu)",
 			amap->fclu_order,
 			amap->clusters_per_au,
@@ -483,7 +483,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 		AU_INFO_T *au;
 
 		if (fat_ent_get(sb, i_clu, &clu_data)) {
-			sdfat_msg(sb, KERN_ERR,
+			exfat_msg(sb, KERN_ERR,
 				"failed to read fat entry(%u)\n", i_clu);
 			goto free_and_eio;
 		}
@@ -526,7 +526,7 @@ int amap_create(struct super_block *sb, u32 pack_ratio, u32 sect_per_au, u32 hid
 	fsi->amap = amap;
 	fsi->used_clusters = total_used_clusters;
 
-	sdfat_msg(sb, KERN_INFO,
+	exfat_msg(sb, KERN_INFO,
 			"AMAP: Smart allocation enabled (opt : %u / %u / %u)",
 			amap->option.au_size, amap->option.au_align_factor,
 			amap->option.packing_ratio);
@@ -563,7 +563,7 @@ free_and_eio:
 /* Free AMAP related structure */
 void amap_destroy(struct super_block *sb)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	int n_au_table;
 
 	if (!amap)
@@ -586,7 +586,7 @@ void amap_destroy(struct super_block *sb)
 	else
 		vfree(amap->fclu_nodes);
 	kfree(amap);
-	SDFAT_SB(sb)->fsi.amap = NULL;
+	EXFAT_SB(sb)->fsi.amap = NULL;
 }
 
 
@@ -597,7 +597,7 @@ void amap_destroy(struct super_block *sb)
  */
 static inline int amap_update_dest(AMAP_T *amap, int ori_dest)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(amap->sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(amap->sb)->fsi);
 	int n_partial_au, n_partial_freeclus;
 
 	if (ori_dest != ALLOC_COLD_ALIGNED)
@@ -932,7 +932,7 @@ void amap_put_target_au(AMAP_T *amap, TARGET_AU_T *cur, unsigned int num_allocat
  */
 static inline int amap_skip_cluster(struct super_block *sb, TARGET_AU_T *cur, int num_to_skip)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	u32 clu, read_clu;
 	MMSG_VAR(int num_to_skip_orig = num_to_skip);
 
@@ -978,14 +978,14 @@ static inline int amap_skip_cluster(struct super_block *sb, TARGET_AU_T *cur, in
 /* AMAP-based allocation function for FAT32 */
 s32 amap_fat_alloc_cluster(struct super_block *sb, u32 num_alloc, CHAIN_T *p_chain, s32 dest)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	TARGET_AU_T *cur = NULL;
 	AU_INFO_T *target_au = NULL;				/* Allocation target AU */
 	s32 ret = -ENOSPC;
 	u32 last_clu = CLUS_EOF, read_clu;
 	u32 new_clu, total_cnt;
 	u32 num_allocated = 0, num_allocated_each = 0;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	BUG_ON(!amap);
 	BUG_ON(IS_CLUS_EOF(fsi->used_clusters));
@@ -993,7 +993,7 @@ s32 amap_fat_alloc_cluster(struct super_block *sb, u32 num_alloc, CHAIN_T *p_cha
 	total_cnt = fsi->num_clusters - CLUS_BASE;
 
 	if (unlikely(total_cnt < fsi->used_clusters)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"AMAP(%s): invalid used clusters(t:%u,u:%u)\n",
 				__func__, total_cnt, fsi->used_clusters);
 		return -EIO;
@@ -1013,7 +1013,7 @@ retry_alloc:
 	cur = amap_get_target_au(amap, dest, fsi->reserved_clusters);
 	if (unlikely(!cur)) {
 		// There is no available AU (only ignored-AU are left)
-		sdfat_msg(sb, KERN_ERR, "AMAP Allocator: no avaialble AU.");
+		exfat_msg(sb, KERN_ERR, "AMAP Allocator: no avaialble AU.");
 		goto error;
 	}
 
@@ -1117,7 +1117,7 @@ s32 amap_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_relse)
  */
 s32 amap_release_cluster(struct super_block *sb, u32 clu)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au;
 	int i_au;
 
@@ -1128,7 +1128,7 @@ s32 amap_release_cluster(struct super_block *sb, u32 clu)
 	BUG_ON(i_au >= amap->n_au);
 	au = GET_AU(amap, i_au);
 	if (au->free_clusters >= amap->clusters_per_au) {
-		sdfat_fs_error(sb, "%s, au->free_clusters(%hd) is "
+		exfat_fs_error(sb, "%s, au->free_clusters(%hd) is "
 			"greater than or equal to amap->clusters_per_au(%hd)",
 			__func__, au->free_clusters, amap->clusters_per_au);
 		return -EIO;
@@ -1166,7 +1166,7 @@ s32 amap_release_cluster(struct super_block *sb, u32 clu)
  */
 s32 amap_check_working(struct super_block *sb, u32 clu)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au;
 
 	BUG_ON(!amap);
@@ -1180,7 +1180,7 @@ s32 amap_check_working(struct super_block *sb, u32 clu)
  */
 s32 amap_get_freeclus(struct super_block *sb, u32 clu)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au;
 
 	BUG_ON(!amap);
@@ -1197,7 +1197,7 @@ s32 amap_get_freeclus(struct super_block *sb, u32 clu)
  */
 s32 amap_mark_ignore(struct super_block *sb, u32 clu)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au;
 
 	BUG_ON(!amap);
@@ -1231,7 +1231,7 @@ s32 amap_mark_ignore(struct super_block *sb, u32 clu)
  */
 s32 amap_unmark_ignore(struct super_block *sb, u32 clu)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au;
 
 	BUG_ON(!amap);
@@ -1259,7 +1259,7 @@ s32 amap_unmark_ignore(struct super_block *sb, u32 clu)
  */
 s32 amap_unmark_ignore_all(struct super_block *sb)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	struct slist_head *entry;
 	AU_INFO_T *au;
 	int n = 0;
@@ -1297,7 +1297,7 @@ s32 amap_unmark_ignore_all(struct super_block *sb)
  */
 u32 amap_get_au_stat(struct super_block *sb, s32 mode)
 {
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 
 	if (!amap)
 		return 0;

@@ -15,10 +15,10 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_DEFRAG_H
-#define _SDFAT_DEFRAG_H
+#ifndef _EXFAT_DEFRAG_H
+#define _EXFAT_DEFRAG_H
 
-#ifdef	CONFIG_SDFAT_DFR
+#ifdef	CONFIG_EXFAT_DFR
 
 /* Tuning parameters */
 #define	DFR_MIN_TIMEOUT		 (1 * HZ)	// Minimum timeout for forced-sync
@@ -40,7 +40,7 @@
 /* Debugging support*/
 #define dfr_err(fmt, args...) pr_err("DFR: " fmt "\n", args)
 
-#ifdef	CONFIG_SDFAT_DFR_DEBUG
+#ifdef	CONFIG_EXFAT_DFR_DEBUG
 #define dfr_debug(fmt, args...) pr_debug("DFR: " fmt "\n", args)
 #else
 #define dfr_debug(fmt, args...)
@@ -88,13 +88,13 @@
 #define	FAT32_UNUSED_CLUS			(2)
 
 #define	CLUS_PER_AU(sb)				( \
-	(SDFAT_SB(sb)->options.amap_opt.sect_per_au) >> (SDFAT_SB(sb)->fsi.sect_per_clus_bits) \
+	(EXFAT_SB(sb)->options.amap_opt.sect_per_au) >> (EXFAT_SB(sb)->fsi.sect_per_clus_bits) \
 )
 #define	PAGES_PER_AU(sb)			( \
-	((SDFAT_SB(sb)->options.amap_opt.sect_per_au) << ((sb)->s_blocksize_bits)) \
+	((EXFAT_SB(sb)->options.amap_opt.sect_per_au) << ((sb)->s_blocksize_bits)) \
 	>> PAGE_SHIFT \
 )
-#define	PAGES_PER_CLUS(sb)			((SDFAT_SB(sb)->fsi.cluster_size) >> PAGE_SHIFT)
+#define	PAGES_PER_CLUS(sb)			((EXFAT_SB(sb)->fsi.cluster_size) >> PAGE_SHIFT)
 
 #define	FAT32_CHECK_CLUSTER(fsi, clus, err) \
 		{ \
@@ -251,11 +251,11 @@ int defrag_free_cluster(struct super_block *sb, unsigned int clus);
 int defrag_check_defrag_required(struct super_block *sb, int *totalau, int *cleanau, int *fullau);
 int defrag_check_defrag_on(struct inode *inode, loff_t start, loff_t end, int cancel, const char *caller);
 
-#ifdef CONFIG_SDFAT_DFR_DEBUG
+#ifdef CONFIG_EXFAT_DFR_DEBUG
 void defrag_spo_test(struct super_block *sb, int flag, const char *caller);
 #endif
 
-#endif	/* CONFIG_SDFAT_DFR */
+#endif	/* CONFIG_EXFAT_DFR */
 
-#endif	/* _SDFAT_DEFRAG_H */
+#endif	/* _EXFAT_DEFRAG_H */
 

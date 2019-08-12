@@ -15,8 +15,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_AMAP_H
-#define _SDFAT_AMAP_H
+#ifndef _EXFAT_AMAP_H
+#define _EXFAT_AMAP_H
 
 #include <linux/fs.h>
 #include <linux/list.h>
@@ -26,7 +26,7 @@
 #define SMART_ALLOC_N_HOT_AU    (5)
 
 /* Allocating Destination (for smart allocator):
- * moved to sdfat.h
+ * moved to exfat.h
  */
 /*
  * #define ALLOC_COLD_ALIGNED	(1)
@@ -134,4 +134,4 @@ typedef struct __AMAP_T {
  * NOTE : AMAP internal functions are moved to core.h
  */
 
-#endif /* _SDFAT_AMAP_H */
+#endif /* _EXFAT_AMAP_H */

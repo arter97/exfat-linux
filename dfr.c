@@ -19,7 +19,7 @@
 /*                                                                      */
 /* @PROJECT : exFAT & FAT12/16/32 File System                           */
 /* @FILE    : dfr.c                                                     */
-/* @PURPOSE : Defragmentation support for SDFAT32                       */
+/* @PURPOSE : Defragmentation support for EXFAT32                       */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -31,11 +31,11 @@
 #include <linux/list.h>
 #include <linux/blkdev.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 #include "amap_smart.h"
 
-#ifdef CONFIG_SDFAT_DFR
+#ifdef CONFIG_EXFAT_DFR
 /**
  * @fn		defrag_get_info
  * @brief	get HW params for defrag daemon
@@ -49,8 +49,8 @@ defrag_get_info(
 	IN struct super_block *sb,
 	OUT struct defrag_info_arg *arg)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 
 	if (!arg)
 		return -EINVAL;
@@ -83,7 +83,7 @@ __defrag_scan_dir(
 
 	/* Check params */
 	ERR_HANDLE2((!sb || !dos_ep || !i_pos || !arg), err, -EINVAL);
-	fsi = &(SDFAT_SB(sb)->fsi);
+	fsi = &(EXFAT_SB(sb)->fsi);
 
 	/* Get given entry's type */
 	type = fsi->fs_func->get_entry_type((DENTRY_T *) dos_ep);
@@ -144,7 +144,7 @@ defrag_scan_dir(
 	IN struct super_block *sb,
 	INOUT struct defrag_trav_arg *args)
 {
-	struct sdfat_sb_info *sbi = NULL;
+	struct exfat_sb_info *sbi = NULL;
 	FS_INFO_T *fsi = NULL;
 	struct defrag_trav_header *header = NULL;
 	DOS_DENTRY_T *dos_ep;
@@ -154,7 +154,7 @@ defrag_scan_dir(
 
 	/* Check params */
 	ERR_HANDLE2((!sb || !args), err, -EINVAL);
-	sbi = SDFAT_SB(sb);
+	sbi = EXFAT_SB(sb);
 	fsi = &(sbi->fsi);
 	header = (struct defrag_trav_header *) args;
 
@@ -285,7 +285,7 @@ __defrag_validate_cluster_prev(
 	IN struct super_block *sb,
 	IN struct defrag_chunk_info *chunk)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	CHAIN_T dir;
 	DENTRY_T *ep = NULL;
 	unsigned int entry = 0, clus = 0;
@@ -333,7 +333,7 @@ __defrag_validate_cluster_next(
 	IN struct super_block *sb,
 	IN struct defrag_chunk_info *chunk)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	unsigned int clus = 0;
 	int err = 0;
 
@@ -367,9 +367,9 @@ __defrag_check_au(
 {
 	unsigned int nr_free = amap_get_freeclus(sb, clus);
 
-#if defined(CONFIG_SDFAT_DFR_DEBUG) && defined(CONFIG_SDFAT_DBG_MSG)
+#if defined(CONFIG_EXFAT_DFR_DEBUG) && defined(CONFIG_EXFAT_DBG_MSG)
 	if (nr_free < limit) {
-		AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+		AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 		AU_INFO_T *au = GET_AU(amap, i_AU_of_CLU(amap, clus));
 
 		dfr_debug("AU[%d] nr_free %d, limit %d", au->idx, nr_free, limit);
@@ -395,7 +395,7 @@ defrag_validate_cluster(
 	IN int skip_prev)
 {
 	struct super_block *sb = inode->i_sb;
-	FILE_ID_T *fid = &(SDFAT_I(inode)->fid);
+	FILE_ID_T *fid = &(EXFAT_I(inode)->fid);
 	unsigned int clus = 0;
 	int err = 0, i = 0;
 
@@ -451,10 +451,10 @@ defrag_reserve_clusters(
 	INOUT struct super_block *sb,
 	IN int nr_clus)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	FS_INFO_T *fsi = &(sbi->fsi);
 
-	if (!(sbi->options.improved_allocation & SDFAT_ALLOC_DELAY))
+	if (!(sbi->options.improved_allocation & EXFAT_ALLOC_DELAY))
 		/* Nothing to do */
 		return 0;
 
@@ -489,7 +489,7 @@ defrag_mark_ignore(
 {
 	int err = 0;
 
-	if (SDFAT_SB(sb)->options.improved_allocation & SDFAT_ALLOC_SMART)
+	if (EXFAT_SB(sb)->options.improved_allocation & EXFAT_ALLOC_SMART)
 		err = amap_mark_ignore(sb, clus);
 
 	if (err)
@@ -508,7 +508,7 @@ defrag_mark_ignore(
 void
 defrag_unmark_ignore_all(struct super_block *sb)
 {
-	if (SDFAT_SB(sb)->options.improved_allocation & SDFAT_ALLOC_SMART)
+	if (EXFAT_SB(sb)->options.improved_allocation & EXFAT_ALLOC_SMART)
 		amap_unmark_ignore_all(sb);
 }
 
@@ -529,13 +529,13 @@ defrag_map_cluster(
 	unsigned int *clu)
 {
 	struct super_block *sb = inode->i_sb;
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
-#ifdef CONFIG_SDFAT_DFR_PACKING
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+#ifdef CONFIG_EXFAT_DFR_PACKING
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 #endif
-	FILE_ID_T *fid = &(SDFAT_I(inode)->fid);
-	struct defrag_info *ino_dfr = &(SDFAT_I(inode)->dfr_info);
+	FILE_ID_T *fid = &(EXFAT_I(inode)->fid);
+	struct defrag_info *ino_dfr = &(EXFAT_I(inode)->dfr_info);
 	struct defrag_chunk_info *chunk = NULL;
 	CHAIN_T new_clu;
 	int i = 0, nr_new = 0, err = 0;
@@ -562,7 +562,7 @@ defrag_map_cluster(
 	new_clu.flags = fid->flags;
 
 	/* Allocate new cluster */
-#ifdef CONFIG_SDFAT_DFR_PACKING
+#ifdef CONFIG_EXFAT_DFR_PACKING
 	if (amap->n_clean_au * DFR_FULL_RATIO <= amap->n_au * DFR_DEFAULT_PACKING_RATIO)
 		err = fsi->fs_func->alloc_cluster(sb, 1, &new_clu, ALLOC_COLD_PACKING);
 	else
@@ -622,8 +622,8 @@ defrag_writepage_end_io(
 	INOUT struct page *page)
 {
 	struct super_block *sb = page->mapping->host->i_sb;
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	struct defrag_info *ino_dfr = &(SDFAT_I(page->mapping->host)->dfr_info);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	struct defrag_info *ino_dfr = &(EXFAT_I(page->mapping->host)->dfr_info);
 	unsigned int clus_start = 0, clus_end = 0;
 	int i = 0;
 
@@ -661,7 +661,7 @@ defrag_writepage_end_io(
  */
 static int
 __defrag_check_wb(
-	IN struct sdfat_sb_info *sbi,
+	IN struct exfat_sb_info *sbi,
 	IN struct defrag_chunk_info *chunk)
 {
 	int err = 0, wb_i = 0, i = 0, nr_new = 0;
@@ -712,16 +712,16 @@ __defrag_check_fat_old(
 	IN struct inode *inode,
 	IN struct defrag_chunk_info *chunk)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	unsigned int clus = 0;
 	int err = 0, idx = 0, max_idx = 0;
 
 	/* Get start_clus */
-	clus = SDFAT_I(inode)->fid.start_clu;
+	clus = EXFAT_I(inode)->fid.start_clu;
 
 	/* Follow FAT-chain */
 	#define num_clusters(val) ((val) ? (s32)((val - 1) >> fsi->cluster_size_bits) + 1 : 0)
-	max_idx = num_clusters(SDFAT_I(inode)->i_size_ondisk);
+	max_idx = num_clusters(EXFAT_I(inode)->i_size_ondisk);
 	for (idx = 0; idx < max_idx; idx++) {
 
 		FAT32_CHECK_CLUSTER(fsi, clus, err);
@@ -749,8 +749,8 @@ __defrag_check_fat_new(
 	IN struct inode *inode,
 	IN struct defrag_chunk_info *chunk)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	unsigned int clus = 0;
 	int i = 0, err = 0;
 
@@ -761,7 +761,7 @@ __defrag_check_fat_new(
 		err = fat_ent_get(sb, chunk->prev_clus, &clus);
 		BUG_ON(err);
 	} else {
-		clus = SDFAT_I(inode)->fid.start_clu;
+		clus = EXFAT_I(inode)->fid.start_clu;
 	}
 	if (sbi->dfr_new_clus[chunk->new_idx] != clus) {
 		dfr_err("FAT: inode %p, start_clus %08x, read_clus %08x",
@@ -814,8 +814,8 @@ __defrag_update_dirent(
 	struct super_block *sb,
 	struct defrag_chunk_info *chunk)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	FS_INFO_T *fsi = &SDFAT_SB(sb)->fsi;
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	FS_INFO_T *fsi = &EXFAT_SB(sb)->fsi;
 	CHAIN_T dir;
 	DOS_DENTRY_T *dos_ep;
 	unsigned int entry = 0;
@@ -855,7 +855,7 @@ defrag_update_fat_prev(
 	struct super_block *sb,
 	int force)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	FS_INFO_T *fsi = &(sbi->fsi);
 	struct defrag_info *sb_dfr = &sbi->dfr_info, *ino_dfr = NULL;
 	int skip = 0, done = 0;
@@ -867,8 +867,8 @@ defrag_update_fat_prev(
 	}
 
 	list_for_each_entry(ino_dfr, &sb_dfr->entry, entry) {
-		struct inode *inode = &(container_of(ino_dfr, struct sdfat_inode_info, dfr_info)->vfs_inode);
-		struct sdfat_inode_info *ino_info = SDFAT_I(inode);
+		struct inode *inode = &(container_of(ino_dfr, struct exfat_inode_info, dfr_info)->vfs_inode);
+		struct exfat_inode_info *ino_info = EXFAT_I(inode);
 		struct defrag_chunk_info *chunk_prev = NULL;
 		int i = 0, j = 0;
 
@@ -932,7 +932,7 @@ defrag_update_fat_prev(
 				continue;
 			}
 
-#ifdef	CONFIG_SDFAT_DFR_DEBUG
+#ifdef	CONFIG_EXFAT_DFR_DEBUG
 			/* SPO test */
 			defrag_spo_test(sb, DFR_SPO_RANDOM, __func__);
 #endif
@@ -1033,8 +1033,8 @@ void
 defrag_update_fat_next(
 	struct super_block *sb)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	struct defrag_info *sb_dfr = &sbi->dfr_info, *ino_dfr = NULL;
 	struct defrag_chunk_info *chunk = NULL;
 	int done = 0, i = 0, j = 0, err = 0;
@@ -1079,7 +1079,7 @@ defrag_update_fat_next(
 				chunk->next_clus))
 				goto out;
 
-#ifdef	CONFIG_SDFAT_DFR_DEBUG
+#ifdef	CONFIG_EXFAT_DFR_DEBUG
 			/* SPO test */
 			defrag_spo_test(sb, DFR_SPO_RANDOM, __func__);
 #endif
@@ -1106,17 +1106,17 @@ void
 defrag_check_discard(
 	IN struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
-	AMAP_T *amap = SDFAT_SB(sb)->fsi.amap;
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+	AMAP_T *amap = EXFAT_SB(sb)->fsi.amap;
 	AU_INFO_T *au = NULL;
-	struct defrag_info *sb_dfr = &(SDFAT_SB(sb)->dfr_info);
+	struct defrag_info *sb_dfr = &(EXFAT_SB(sb)->dfr_info);
 	unsigned int tmp[DFR_MAX_AU_MOVED];
 	int i = 0, j = 0;
 
 	BUG_ON(!amap);
 
-	if (!(SDFAT_SB(sb)->options.discard) ||
-		!(SDFAT_SB(sb)->options.improved_allocation & SDFAT_ALLOC_SMART))
+	if (!(EXFAT_SB(sb)->options.discard) ||
+		!(EXFAT_SB(sb)->options.improved_allocation & EXFAT_ALLOC_SMART))
 		return;
 
 	memset(tmp, 0, sizeof(int) * DFR_MAX_AU_MOVED);
@@ -1178,7 +1178,7 @@ defrag_free_cluster(
 	struct super_block *sb,
 	unsigned int clus)
 {
-	FS_INFO_T *fsi = &SDFAT_SB(sb)->fsi;
+	FS_INFO_T *fsi = &EXFAT_SB(sb)->fsi;
 	unsigned int val = 0;
 	s32 err = 0;
 
@@ -1220,16 +1220,16 @@ defrag_check_defrag_required(
 	OUT int *cleanau,
 	OUT int *fullau)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	AMAP_T *amap = NULL;
 	int clean_ratio = 0, frag_ratio = 0;
 	int ret = 0;
 
-	if (!sb || !(SDFAT_SB(sb)->options.defrag))
+	if (!sb || !(EXFAT_SB(sb)->options.defrag))
 		return 0;
 
 	/* Check DFR_DEFAULT_STOP_RATIO first */
-	fsi = &(SDFAT_SB(sb)->fsi);
+	fsi = &(EXFAT_SB(sb)->fsi);
 	if (fsi->used_clusters == (unsigned int)(~0)) {
 		if (fsi->fs_func->count_used_clusters(sb, &fsi->used_clusters))
 			return -EIO;
@@ -1240,7 +1240,7 @@ defrag_check_defrag_required(
 	}
 
 	/* Check clean/frag ratio */
-	amap = SDFAT_SB(sb)->fsi.amap;
+	amap = EXFAT_SB(sb)->fsi.amap;
 	BUG_ON(!amap);
 
 	clean_ratio = (amap->n_clean_au * 100) / amap->n_au;
@@ -1289,9 +1289,9 @@ defrag_check_defrag_on(
 	IN const char *caller)
 {
 	struct super_block *sb = inode->i_sb;
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	FS_INFO_T *fsi = &(sbi->fsi);
-	struct defrag_info *ino_dfr = &(SDFAT_I(inode)->dfr_info);
+	struct defrag_info *ino_dfr = &(EXFAT_I(inode)->dfr_info);
 	unsigned int clus_start = 0, clus_end = 0;
 	int ret = 0, i = 0;
 
@@ -1341,7 +1341,7 @@ error:
 }
 
 
-#ifdef CONFIG_SDFAT_DFR_DEBUG
+#ifdef CONFIG_EXFAT_DFR_DEBUG
 /**
  * @fn		defrag_spo_test
  * @brief	test SPO while defrag running
@@ -1356,9 +1356,9 @@ defrag_spo_test(
 	int flag,
 	const char *caller)
 {
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 
-	if (!sb || !(SDFAT_SB(sb)->options.defrag))
+	if (!sb || !(EXFAT_SB(sb)->options.defrag))
 		return;
 
 	if (flag == sbi->dfr_spo_flag) {
@@ -1366,7 +1366,7 @@ defrag_spo_test(
 		panic("Defrag SPO test");
 	}
 }
-#endif	/* CONFIG_SDFAT_DFR_DEBUG */
+#endif	/* CONFIG_EXFAT_DFR_DEBUG */
 
 
-#endif /* CONFIG_SDFAT_DFR */
+#endif /* CONFIG_EXFAT_DFR */

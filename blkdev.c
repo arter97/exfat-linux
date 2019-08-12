@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : blkdev.c                                                  */
-/*  PURPOSE : sdFAT Block Device Driver Glue Layer                      */
+/*  PURPOSE : exFAT Block Device Driver Glue Layer                      */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -30,7 +30,7 @@
 #include <linux/log2.h>
 #include <linux/backing-dev.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 
 /*----------------------------------------------------------------------*/
 /*  Constant & Macro Definitions                                        */
@@ -62,7 +62,7 @@ static struct backing_dev_info *inode_to_bdi(struct inode *bd_inode)
 /*======================================================================*/
 s32 bdev_open_dev(struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (fsi->bd_opened)
 		return 0;
@@ -73,7 +73,7 @@ s32 bdev_open_dev(struct super_block *sb)
 
 s32 bdev_close_dev(struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	fsi->bd_opened = false;
 	return 0;
@@ -89,14 +89,14 @@ static inline s32 block_device_ejected(struct super_block *sb)
 
 s32 bdev_check_bdi_valid(struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (block_device_ejected(sb)) {
-		if (!(fsi->prev_eio & SDFAT_EIO_BDI)) {
-			fsi->prev_eio |= SDFAT_EIO_BDI;
-			sdfat_log_msg(sb, KERN_ERR, "%s: block device is "
+		if (!(fsi->prev_eio & EXFAT_EIO_BDI)) {
+			fsi->prev_eio |= EXFAT_EIO_BDI;
+			exfat_log_msg(sb, KERN_ERR, "%s: block device is "
 				"eliminated.(bdi:%p)", __func__, sb->s_bdi);
-			sdfat_debug_warn_on(1);
+			exfat_debug_warn_on(1);
 		}
 		return -ENXIO;
 	}
@@ -108,7 +108,7 @@ s32 bdev_check_bdi_valid(struct super_block *sb)
 /* Make a readahead request */
 s32 bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u32 sects_per_page = (PAGE_SIZE >> sb->s_blocksize_bits);
 	struct blk_plug plug;
 	u64 i;
@@ -129,15 +129,15 @@ s32 bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
 
 s32 bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh, u64 num_secs, s32 read)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u8 blksize_bits = sb->s_blocksize_bits;
-#ifdef CONFIG_SDFAT_DBG_IOCTL
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+#ifdef CONFIG_EXFAT_DBG_IOCTL
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	long flags = sbi->debug_flags;
 
-	if (flags & SDFAT_DEBUGFLAGS_ERROR_RW)
+	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
 		return -EIO;
-#endif /* CONFIG_SDFAT_DBG_IOCTL */
+#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
@@ -156,10 +156,10 @@ s32 bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh, u64 n
 	/*
 	 * patch 1.2.4 : reset ONCE warning message per volume.
 	 */
-	if (!(fsi->prev_eio & SDFAT_EIO_READ)) {
-		fsi->prev_eio |= SDFAT_EIO_READ;
-		sdfat_log_msg(sb, KERN_ERR, "%s: No bh. I/O error.", __func__);
-		sdfat_debug_warn_on(1);
+	if (!(fsi->prev_eio & EXFAT_EIO_READ)) {
+		fsi->prev_eio |= EXFAT_EIO_READ;
+		exfat_log_msg(sb, KERN_ERR, "%s: No bh. I/O error.", __func__);
+		exfat_debug_warn_on(1);
 	}
 
 	return -EIO;
@@ -169,14 +169,14 @@ s32 bdev_mwrite(struct super_block *sb, u64 secno, struct buffer_head *bh, u64 n
 {
 	u64 count;
 	struct buffer_head *bh2;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
-#ifdef CONFIG_SDFAT_DBG_IOCTL
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+#ifdef CONFIG_EXFAT_DBG_IOCTL
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	long flags = sbi->debug_flags;
 
-	if (flags & SDFAT_DEBUGFLAGS_ERROR_RW)
+	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
 		return -EIO;
-#endif /* CONFIG_SDFAT_DBG_IOCTL */
+#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
@@ -210,10 +210,10 @@ no_bh:
 	/*
 	 * patch 1.2.4 : reset ONCE warning message per volume.
 	 */
-	if (!(fsi->prev_eio & SDFAT_EIO_WRITE)) {
-		fsi->prev_eio |= SDFAT_EIO_WRITE;
-		sdfat_log_msg(sb, KERN_ERR, "%s: No bh. I/O error.", __func__);
-		sdfat_debug_warn_on(1);
+	if (!(fsi->prev_eio & EXFAT_EIO_WRITE)) {
+		fsi->prev_eio |= EXFAT_EIO_WRITE;
+		exfat_log_msg(sb, KERN_ERR, "%s: No bh. I/O error.", __func__);
+		exfat_debug_warn_on(1);
 	}
 
 	return -EIO;
@@ -221,14 +221,14 @@ no_bh:
 
 s32 bdev_sync_all(struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
-#ifdef CONFIG_SDFAT_DBG_IOCTL
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+#ifdef CONFIG_EXFAT_DBG_IOCTL
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	long flags = sbi->debug_flags;
 
-	if (flags & SDFAT_DEBUGFLAGS_ERROR_RW)
+	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
 		return -EIO;
-#endif /* CONFIG_SDFAT_DBG_IOCTL */
+#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
@@ -241,17 +241,17 @@ s32 bdev_sync_all(struct super_block *sb)
  */
 s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	BUG_ON(!bh);
 	if ((sec >= fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"%s: out of range (sect:%llu)", __func__, sec);
 		return -EIO;
 	}
 
 	if (bdev_mread(sb, sec, bh, 1, read)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"%s: I/O error (sect:%llu)", __func__, sec);
 		return -EIO;
 	}
@@ -261,17 +261,17 @@ s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read
 
 s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	BUG_ON(!bh);
 	if ((sec >= fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"%s: out of range (sect:%llu)", __func__, sec);
 		return -EIO;
 	}
 
 	if (bdev_mwrite(sb, sec, bh, 1, sync)) {
-		sdfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu)",
 						__func__, sec);
 		return -EIO;
 	}
@@ -281,17 +281,17 @@ s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync
 
 s32 read_msect(struct super_block *sb, u64 sec, struct buffer_head **bh, u64 num_secs, s32 read)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	BUG_ON(!bh);
 	if (((sec+num_secs) > fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		sdfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
 						__func__, sec, num_secs);
 		return -EIO;
 	}
 
 	if (bdev_mread(sb, sec, bh, num_secs, read)) {
-		sdfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
 						__func__, sec, num_secs);
 		return -EIO;
 	}
@@ -301,18 +301,18 @@ s32 read_msect(struct super_block *sb, u64 sec, struct buffer_head **bh, u64 num
 
 s32 write_msect(struct super_block *sb, u64 sec, struct buffer_head *bh, u64 num_secs, s32 sync)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	BUG_ON(!bh);
 	if (((sec+num_secs) > fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		sdfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
 						__func__, sec, num_secs);
 		return -EIO;
 	}
 
 
 	if (bdev_mwrite(sb, sec, bh, num_secs, sync)) {
-		sdfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
 						__func__, sec, num_secs);
 		return -EIO;
 	}
@@ -398,10 +398,10 @@ error:
 
 s32 write_msect_zero(struct super_block *sb, u64 sec, u64 num_secs)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (((sec+num_secs) > fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		sdfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
+		exfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
 						__func__, sec, num_secs);
 		return -EIO;
 	}

@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : core_fat.c                                                */
-/*  PURPOSE : FAT-fs core code for sdFAT                                */
+/*  PURPOSE : FAT-fs core code for exFAT                                */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -33,7 +33,7 @@
 #include <linux/kernel.h>
 #include <linux/log2.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -139,13 +139,13 @@ static u32 __calc_default_au_size(struct super_block *sb)
 out:
 	if (sb->s_blocksize != 512) {
 		ASSERT(sb->s_blocksize_bits > 9);
-		sdfat_log_msg(sb, KERN_INFO,
+		exfat_log_msg(sb, KERN_INFO,
 			"adjustment est_au_size by logical block size(%lu)",
 			sb->s_blocksize);
 		est_au_sect >>= (sb->s_blocksize_bits - 9);
 	}
 
-	sdfat_log_msg(sb, KERN_INFO, "set default AU sectors   : %u "
+	exfat_log_msg(sb, KERN_INFO, "set default AU sectors   : %u "
 		"(queue_au_size : %u KB, disk_size : %llu MB)",
 		est_au_sect, queue_au_size >> 10, (u64)(total_sect >> 11));
 	return est_au_sect;
@@ -160,7 +160,7 @@ static s32 fat_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_rel
 	s32 ret = -EIO;
 	s32 num_clusters = 0;
 	u32 clu, prev;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	s32 i;
 	u64 sector;
 
@@ -178,7 +178,7 @@ static s32 fat_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_rel
 	/* check cluster validation */
 	if ((p_chain->dir < 2) && (p_chain->dir >= fsi->num_clusters)) {
 		EMSG("%s: invalid start cluster (%u)\n", __func__, p_chain->dir);
-		sdfat_debug_bug_on(1);
+		exfat_debug_bug_on(1);
 		return -EIO;
 	}
 
@@ -199,11 +199,11 @@ static s32 fat_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_rel
 		if (get_next_clus_safe(sb, &clu)) {
 			/* print more helpful log */
 			if (IS_CLUS_BAD(clu)) {
-				sdfat_log_msg(sb, KERN_ERR, "%s : "
+				exfat_log_msg(sb, KERN_ERR, "%s : "
 					"deleting bad cluster (clu[%u]->BAD)",
 					__func__, prev);
 			} else if (IS_CLUS_FREE(clu)) {
-				sdfat_log_msg(sb, KERN_ERR, "%s : "
+				exfat_log_msg(sb, KERN_ERR, "%s : "
 					"deleting free cluster (clu[%u]->FREE)",
 					__func__, prev);
 			}
@@ -236,12 +236,12 @@ static s32 fat_alloc_cluster(struct super_block *sb, u32 num_alloc, CHAIN_T *p_c
 	s32 ret = -ENOSPC;
 	u32 i, num_clusters = 0, total_cnt;
 	u32 new_clu, last_clu = CLUS_EOF, read_clu;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	total_cnt = fsi->num_clusters - CLUS_BASE;
 
 	if (unlikely(total_cnt < fsi->used_clusters)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"%s : invalid used clusters(t:%u,u:%u)\n",
 				__func__, total_cnt, fsi->used_clusters);
 		return -EIO;
@@ -304,7 +304,7 @@ static s32 fat_count_used_clusters(struct super_block *sb, u32 *ret_count)
 {
 	s32 i;
 	u32 clu, count = 0;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	for (i = CLUS_BASE; i < fsi->num_clusters; i++) {
 		if (fat_ent_get(sb, i, &clu))
@@ -478,7 +478,7 @@ static void __init_dos_entry(struct super_block *sb, DOS_DENTRY_T *ep, u32 type,
 	ep->start_clu_hi = cpu_to_le16(CLUSTER_16(start_clu >> 16));
 	ep->size = 0;
 
-	tp = tm_now(SDFAT_SB(sb), &tm);
+	tp = tm_now(EXFAT_SB(sb), &tm);
 	fat_set_entry_time((DENTRY_T *) ep, tp, TM_CREATE);
 	fat_set_entry_time((DENTRY_T *) ep, tp, TM_MODIFY);
 	ep->access_date = 0;
@@ -642,7 +642,7 @@ static s32 fat_find_dir_entry(struct super_block *sb, FILE_ID_T *fid,
 	DENTRY_T *ep;
 	HINT_T *hint_stat = &fid->hint_stat;
 	HINT_FEMP_T candi_empty;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	/*
 	 * REMARK:
@@ -726,12 +726,12 @@ rewind:
 				}
 
 				if (!uniname) {
-					sdfat_fs_error(sb,
+					exfat_fs_error(sb,
 						"%s : abnormal dentry "
 						"(start_clu[%u], "
 						"idx[%u])", __func__,
 						p_dir->dir, dentry);
-					sdfat_debug_bug_on(1);
+					exfat_debug_bug_on(1);
 					return -EIO;
 				}
 
@@ -1018,7 +1018,7 @@ static s32 __fat_find_shortname_entry(struct super_block *sb, CHAIN_T *p_dir,
 	DENTRY_T *ep = NULL;
 	DOS_DENTRY_T *dos_ep = NULL;
 	CHAIN_T clu = *p_dir;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (offset)
 		*offset = -1;
@@ -1056,7 +1056,7 @@ static s32 __fat_find_shortname_entry(struct super_block *sb, CHAIN_T *p_dir,
 	return -ENOENT;
 }
 
-#ifdef CONFIG_SDFAT_FAT32_SHORTNAME_SEQ
+#ifdef CONFIG_EXFAT_FAT32_SHORTNAME_SEQ
 static void __fat_attach_count_to_dos_name(u8 *dosname, s32 count)
 {
 	s32 i, j, length;
@@ -1105,7 +1105,7 @@ s32 fat_generate_dos_name_new(struct super_block *sb, CHAIN_T *p_dir, DOS_NAME_T
 
 	BUG_ON(baselen < 0);
 
-#ifdef CONFIG_SDFAT_FAT32_SHORTNAME_SEQ
+#ifdef CONFIG_EXFAT_FAT32_SHORTNAME_SEQ
 	/* example) namei_exfat.c -> NAMEI_~1 - NAMEI_~9 */
 	work[baselen] = '~';
 	for (i = 1; i < 10; i++) {
@@ -1241,10 +1241,10 @@ s32 mount_fat16(struct super_block *sb, pbr_t *p_pbr)
 {
 	s32 num_root_sectors;
 	bpb16_t *p_bpb = &(p_pbr->bpb.f16);
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (!p_bpb->num_fats) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
+		exfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
 		return -EINVAL;
 	}
 
@@ -1272,7 +1272,7 @@ s32 mount_fat16(struct super_block *sb, pbr_t *p_pbr)
 		fsi->num_sectors = le32_to_cpu(p_bpb->num_huge_sectors);
 
 	if (!fsi->num_sectors) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of total sector count");
+		exfat_msg(sb, KERN_ERR, "bogus number of total sector count");
 		return -EINVAL;
 	}
 
@@ -1288,7 +1288,7 @@ s32 mount_fat16(struct super_block *sb, pbr_t *p_pbr)
 	fsi->root_dir = 0;
 	fsi->dentries_in_root = get_unaligned_le16(p_bpb->num_root_entries);
 	if (!fsi->dentries_in_root) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of max dentry count "
+		exfat_msg(sb, KERN_ERR, "bogus number of max dentry count "
 					"of the root directory");
 		return -EINVAL;
 	}
@@ -1304,7 +1304,7 @@ s32 mount_fat16(struct super_block *sb, pbr_t *p_pbr)
 
 	if (p_bpb->state & FAT_VOL_DIRTY) {
 		fsi->vol_flag |= VOL_DIRTY;
-		sdfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
+		exfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
 			"unmounted. Some data may be corrupt. "
 			"Please run fsck.");
 	}
@@ -1324,7 +1324,7 @@ static sector_t __calc_hidden_sect(struct super_block *sb)
 	/* a disk device, not a partition */
 	if (!hidden) {
 		if (bdev != bdev->bd_contains)
-			sdfat_log_msg(sb, KERN_WARNING,
+			exfat_log_msg(sb, KERN_WARNING,
 				"hidden(0), but disk has a partition table");
 		goto out;
 	}
@@ -1335,7 +1335,7 @@ static sector_t __calc_hidden_sect(struct super_block *sb)
 	}
 
 out:
-	sdfat_log_msg(sb, KERN_INFO, "start_sect of part(%d)    : %lld",
+	exfat_log_msg(sb, KERN_INFO, "start_sect of part(%d)    : %lld",
 		bdev ? bdev->bd_part->partno : -1, (s64)hidden);
 	return hidden;
 
@@ -1344,10 +1344,10 @@ out:
 s32 mount_fat32(struct super_block *sb, pbr_t *p_pbr)
 {
 	pbr32_t *p_bpb = (pbr32_t *)p_pbr;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (!p_bpb->bpb.num_fats) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
+		exfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
 		return -EINVAL;
 	}
 
@@ -1374,7 +1374,7 @@ s32 mount_fat32(struct super_block *sb, pbr_t *p_pbr)
 
 	/* 2nd check */
 	if (!fsi->num_sectors) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of total sector count");
+		exfat_msg(sb, KERN_ERR, "bogus number of total sector count");
 		return -EINVAL;
 	}
 
@@ -1401,7 +1401,7 @@ s32 mount_fat32(struct super_block *sb, pbr_t *p_pbr)
 	fat_ent_ops_init(sb);
 
 	/* AU Map Creation */
-	if (SDFAT_SB(sb)->options.improved_allocation & SDFAT_ALLOC_SMART) {
+	if (EXFAT_SB(sb)->options.improved_allocation & EXFAT_ALLOC_SMART) {
 		u32 hidden_sectors = le32_to_cpu(p_bpb->bpb.num_hid_sectors);
 		u32 calc_hid_sect = 0;
 		int ret;
@@ -1410,11 +1410,11 @@ s32 mount_fat32(struct super_block *sb, pbr_t *p_pbr)
 		/* calculate hidden sector size */
 		calc_hid_sect = __calc_hidden_sect(sb);
 		if (calc_hid_sect != hidden_sectors) {
-			sdfat_log_msg(sb, KERN_WARNING, "abnormal hidden "
+			exfat_log_msg(sb, KERN_WARNING, "abnormal hidden "
 				"sector   : bpb(%u) != ondisk(%u)",
 				hidden_sectors, calc_hid_sect);
-			if (SDFAT_SB(sb)->options.adj_hidsect) {
-				sdfat_log_msg(sb, KERN_INFO,
+			if (EXFAT_SB(sb)->options.adj_hidsect) {
+				exfat_log_msg(sb, KERN_INFO,
 					"adjustment hidden sector : "
 					"bpb(%u) -> ondisk(%u)",
 					hidden_sectors, calc_hid_sect);
@@ -1422,38 +1422,38 @@ s32 mount_fat32(struct super_block *sb, pbr_t *p_pbr)
 			}
 		}
 
-		SDFAT_SB(sb)->options.amap_opt.misaligned_sect = hidden_sectors;
+		EXFAT_SB(sb)->options.amap_opt.misaligned_sect = hidden_sectors;
 
 		/* calculate AU size if it's not set */
-		if (!SDFAT_SB(sb)->options.amap_opt.sect_per_au) {
-			SDFAT_SB(sb)->options.amap_opt.sect_per_au =
+		if (!EXFAT_SB(sb)->options.amap_opt.sect_per_au) {
+			EXFAT_SB(sb)->options.amap_opt.sect_per_au =
 				__calc_default_au_size(sb);
 		}
 
 		ret = amap_create(sb,
-				SDFAT_SB(sb)->options.amap_opt.pack_ratio,
-				SDFAT_SB(sb)->options.amap_opt.sect_per_au,
-				SDFAT_SB(sb)->options.amap_opt.misaligned_sect);
+				EXFAT_SB(sb)->options.amap_opt.pack_ratio,
+				EXFAT_SB(sb)->options.amap_opt.sect_per_au,
+				EXFAT_SB(sb)->options.amap_opt.misaligned_sect);
 		if (ret) {
-			sdfat_log_msg(sb, KERN_WARNING, "failed to create AMAP."
+			exfat_log_msg(sb, KERN_WARNING, "failed to create AMAP."
 				" disabling smart allocation. (err:%d)", ret);
-			SDFAT_SB(sb)->options.improved_allocation &= ~(SDFAT_ALLOC_SMART);
+			EXFAT_SB(sb)->options.improved_allocation &= ~(EXFAT_ALLOC_SMART);
 		} else {
 			fsi->fs_func = &amap_fat_fs_func;
 		}
 	}
 
 	/* Check dependency of mount options */
-	if (SDFAT_SB(sb)->options.improved_allocation !=
-				(SDFAT_ALLOC_DELAY | SDFAT_ALLOC_SMART)) {
-		sdfat_log_msg(sb, KERN_INFO, "disabling defragmentation because"
+	if (EXFAT_SB(sb)->options.improved_allocation !=
+				(EXFAT_ALLOC_DELAY | EXFAT_ALLOC_SMART)) {
+		exfat_log_msg(sb, KERN_INFO, "disabling defragmentation because"
 					" smart, delay options are disabled");
-		SDFAT_SB(sb)->options.defrag = 0;
+		EXFAT_SB(sb)->options.defrag = 0;
 	}
 
 	if (p_bpb->bsx.state & FAT_VOL_DIRTY) {
 		fsi->vol_flag |= VOL_DIRTY;
-		sdfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
+		exfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
 			"unmounted. Some data may be corrupt. "
 			"Please run fsck.");
 	}

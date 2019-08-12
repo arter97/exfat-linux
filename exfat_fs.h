@@ -15,8 +15,8 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_FS_H
-#define _SDFAT_FS_H
+#ifndef _EXFAT_FS_H
+#define _EXFAT_FS_H
 
 #include <linux/types.h>
 #include <linux/magic.h>
@@ -33,11 +33,11 @@
 #define EXFAT_SUPER_MAGIC       (0x2011BAB0UL)
 #endif /* EXFAT_SUPER_MAGIC */
 
-#ifndef SDFAT_SUPER_MAGIC
-#define SDFAT_SUPER_MAGIC       (0x5EC5DFA4UL)
-#endif /* SDFAT_SUPER_MAGIC */
+#ifndef EXFAT_SUPER_MAGIC
+#define EXFAT_SUPER_MAGIC       (0x5EC5DFA4UL)
+#endif /* EXFAT_SUPER_MAGIC */
 
-#define SDFAT_ROOT_INO          1
+#define EXFAT_ROOT_INO          1
 
 /* FAT types */
 #define FAT12                   0x01    // FAT12
@@ -151,12 +151,12 @@
 /*
  * ioctl command
  */
-#define SDFAT_IOCTL_GET_VOLUME_ID	_IOR('r', 0x12, __u32)
-#define SDFAT_IOCTL_DFR_INFO		_IOC(_IOC_NONE, 'E', 0x13, sizeof(u32))
-#define SDFAT_IOCTL_DFR_TRAV		_IOC(_IOC_NONE, 'E', 0x14, sizeof(u32))
-#define SDFAT_IOCTL_DFR_REQ		_IOC(_IOC_NONE, 'E', 0x15, sizeof(u32))
-#define SDFAT_IOCTL_DFR_SPO_FLAG	_IOC(_IOC_NONE, 'E', 0x16, sizeof(u32))
-#define SDFAT_IOCTL_PANIC               _IOC(_IOC_NONE, 'E', 0x17, sizeof(u32))
+#define EXFAT_IOCTL_GET_VOLUME_ID	_IOR('r', 0x12, __u32)
+#define EXFAT_IOCTL_DFR_INFO		_IOC(_IOC_NONE, 'E', 0x13, sizeof(u32))
+#define EXFAT_IOCTL_DFR_TRAV		_IOC(_IOC_NONE, 'E', 0x14, sizeof(u32))
+#define EXFAT_IOCTL_DFR_REQ		_IOC(_IOC_NONE, 'E', 0x15, sizeof(u32))
+#define EXFAT_IOCTL_DFR_SPO_FLAG	_IOC(_IOC_NONE, 'E', 0x16, sizeof(u32))
+#define EXFAT_IOCTL_PANIC               _IOC(_IOC_NONE, 'E', 0x17, sizeof(u32))
 
 /*
  * ioctl command for debugging
@@ -169,14 +169,14 @@
  *   - exts for debugging purpose #99
  * number 100 and 101 is available now but has possible conflicts
  *
- * NOTE : This is available only If CONFIG_SDFAT_DVBG_IOCTL is enabled.
+ * NOTE : This is available only If CONFIG_EXFAT_DVBG_IOCTL is enabled.
  *
  */
-#define SDFAT_IOC_GET_DEBUGFLAGS       _IOR('f', 100, long)
-#define SDFAT_IOC_SET_DEBUGFLAGS       _IOW('f', 101, long)
+#define EXFAT_IOC_GET_DEBUGFLAGS       _IOR('f', 100, long)
+#define EXFAT_IOC_SET_DEBUGFLAGS       _IOW('f', 101, long)
 
-#define SDFAT_DEBUGFLAGS_INVALID_UMOUNT        0x01
-#define SDFAT_DEBUGFLAGS_ERROR_RW              0x02
+#define EXFAT_DEBUGFLAGS_INVALID_UMOUNT        0x01
+#define EXFAT_DEBUGFLAGS_ERROR_RW              0x02
 
 /*----------------------------------------------------------------------*/
 /*  On-Disk Type Definitions                                            */
@@ -418,4 +418,4 @@ typedef struct {
 	__u8	reserved[8];
 } VOLM_DENTRY_T;
 
-#endif /* _SDFAT_FS_H */
+#endif /* _EXFAT_FS_H */

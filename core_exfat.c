@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : core_exfat.c                                              */
-/*  PURPOSE : exFAT-fs core code for sdFAT                              */
+/*  PURPOSE : exFAT-fs core code for exFAT                              */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -33,7 +33,7 @@
 #include <linux/kernel.h>
 #include <linux/log2.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -279,7 +279,7 @@ static void __init_file_entry(struct super_block *sb, FILE_DENTRY_T *ep, u32 typ
 
 	exfat_set_entry_type((DENTRY_T *) ep, type);
 
-	tp = tm_now(SDFAT_SB(sb), &tm);
+	tp = tm_now(EXFAT_SB(sb), &tm);
 	exfat_set_entry_time((DENTRY_T *) ep, tp, TM_CREATE);
 	exfat_set_entry_time((DENTRY_T *) ep, tp, TM_MODIFY);
 	exfat_set_entry_time((DENTRY_T *) ep, tp, TM_ACCESS);
@@ -442,7 +442,7 @@ static s32 __write_partial_entries_in_entry_set(struct super_block *sb,
 	s32 num_entries;
 	u32 buf_off = (off - es->offset);
 	u32 remaining_byte_in_sector, copy_entries;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u32 clu;
 	u8 *buf, *esbuf = (u8 *)&(es->__buf);
 
@@ -537,7 +537,7 @@ ENTRY_SET_CACHE_T *get_dentry_set_in_dir(struct super_block *sb,
 	u32 off, byte_offset, clu = 0;
 	u32 entry_type;
 	u64 sec;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	ENTRY_SET_CACHE_T *es = NULL;
 	DENTRY_T *ep, *pos;
 	u8 *buf;
@@ -745,7 +745,7 @@ static s32 exfat_find_dir_entry(struct super_block *sb, FILE_ID_T *fid,
 	FILE_DENTRY_T *file_ep;
 	STRM_DENTRY_T *strm_ep;
 	NAME_DENTRY_T *name_ep;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	/*
 	 * REMARK:
@@ -1034,7 +1034,7 @@ s32 load_alloc_bmp(struct super_block *sb)
 	u64 sector;
 	CHAIN_T clu;
 	BMAP_DENTRY_T *ep;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	clu.dir = fsi->root_dir;
 	clu.flags = 0x01;
@@ -1058,7 +1058,7 @@ s32 load_alloc_bmp(struct super_block *sb)
 
 				need_map_size = (((fsi->num_clusters - CLUS_BASE) - 1) >> 3) + 1;
 				if (need_map_size != map_size) {
-					sdfat_log_msg(sb, KERN_ERR,
+					exfat_log_msg(sb, KERN_ERR,
 						"bogus allocation bitmap size(need : %u, cur : %u)",
 						need_map_size, map_size);
 					/* Only allowed when bogus allocation bitmap size is large */
@@ -1104,7 +1104,7 @@ s32 load_alloc_bmp(struct super_block *sb)
 void free_alloc_bmp(struct super_block *sb)
 {
 	s32 i;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	brelse(fsi->pbr_bh);
 
@@ -1124,7 +1124,7 @@ static s32 set_alloc_bitmap(struct super_block *sb, u32 clu)
 {
 	s32 i, b;
 	u64 sector;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	i = clu >> (sb->s_blocksize_bits + 3);
 	b = clu & (u32)((sb->s_blocksize << 3) - 1);
@@ -1144,9 +1144,9 @@ static s32 clr_alloc_bitmap(struct super_block *sb, u32 clu)
 	s32 ret;
 	s32 i, b;
 	u64 sector;
-	struct sdfat_sb_info *sbi = SDFAT_SB(sb);
-	struct sdfat_mount_options *opts = &sbi->options;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	struct exfat_mount_options *opts = &sbi->options;
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	i = clu >> (sb->s_blocksize_bits + 3);
 	b = clu & (u32)((sb->s_blocksize << 3) - 1);
@@ -1165,7 +1165,7 @@ static s32 clr_alloc_bitmap(struct super_block *sb, u32 clu)
 				(1 << fsi->sect_per_clus_bits), GFP_NOFS, 0);
 
 		if (ret_discard == -EOPNOTSUPP) {
-			sdfat_msg(sb, KERN_ERR,
+			exfat_msg(sb, KERN_ERR,
 				"discard not supported by device, disabling");
 			opts->discard = 0;
 		}
@@ -1183,7 +1183,7 @@ static u32 test_alloc_bitmap(struct super_block *sb, u32 clu)
 	u32 i, map_i, map_b;
 	u32 clu_base, clu_free;
 	u8 k, clu_mask;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	clu_base = (clu & ~(0x7)) + 2;
 	clu_mask = (1 << (clu - clu_base + 2)) - 1;
@@ -1220,7 +1220,7 @@ static u32 test_alloc_bitmap(struct super_block *sb, u32 clu)
 void sync_alloc_bmp(struct super_block *sb)
 {
 	s32 i;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (fsi->vol_amap == NULL)
 		return;
@@ -1257,7 +1257,7 @@ static s32 exfat_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_r
 	s32 ret = -EIO;
 	u32 num_clusters = 0;
 	u32 clu;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	s32 i;
 	u64 sector;
 
@@ -1275,7 +1275,7 @@ static s32 exfat_free_cluster(struct super_block *sb, CHAIN_T *p_chain, s32 do_r
 	/* check cluster validation */
 	if ((p_chain->dir < 2) && (p_chain->dir >= fsi->num_clusters)) {
 		EMSG("%s: invalid start cluster (%u)\n", __func__, p_chain->dir);
-		sdfat_debug_bug_on(1);
+		exfat_debug_bug_on(1);
 		return -EIO;
 	}
 
@@ -1331,12 +1331,12 @@ static s32 exfat_alloc_cluster(struct super_block *sb, u32 num_alloc, CHAIN_T *p
 	s32 ret = -ENOSPC;
 	u32 num_clusters = 0, total_cnt;
 	u32 hint_clu, new_clu, last_clu = CLUS_EOF;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	total_cnt = fsi->num_clusters - CLUS_BASE;
 
 	if (unlikely(total_cnt < fsi->used_clusters)) {
-		sdfat_fs_error_ratelimit(sb,
+		exfat_fs_error_ratelimit(sb,
 				"%s: invalid used clusters(t:%u,u:%u)\n",
 				__func__, total_cnt, fsi->used_clusters);
 		return -EIO;
@@ -1442,7 +1442,7 @@ static s32 exfat_count_used_clusters(struct super_block *sb, u32 *ret_count)
 {
 	u32 count = 0;
 	u32 i, map_i, map_b;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u32 total_clus = fsi->num_clusters - 2;
 
 	map_i = map_b = 0;
@@ -1500,10 +1500,10 @@ static FS_FUNC_T exfat_fs_func = {
 s32 mount_exfat(struct super_block *sb, pbr_t *p_pbr)
 {
 	pbr64_t *p_bpb = (pbr64_t *)p_pbr;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	if (!p_bpb->bsx.num_fats) {
-		sdfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
+		exfat_msg(sb, KERN_ERR, "bogus number of FAT structure");
 		return -EINVAL;
 	}
 
@@ -1543,7 +1543,7 @@ s32 mount_exfat(struct super_block *sb, pbr_t *p_pbr)
 
 	if (p_bpb->bsx.vol_flags & VOL_DIRTY) {
 		fsi->vol_flag |= VOL_DIRTY;
-		sdfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
+		exfat_log_msg(sb, KERN_WARNING, "Volume was not properly "
 				"unmounted. Some data may be corrupt. "
 				"Please run fsck.");
 	}

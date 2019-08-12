@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : nls.c                                                     */
-/*  PURPOSE : sdFAT NLS Manager                                         */
+/*  PURPOSE : exFAT NLS Manager                                         */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -29,7 +29,7 @@
 #include <linux/string.h>
 #include <linux/nls.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 
 /*----------------------------------------------------------------------*/
@@ -75,9 +75,9 @@ static s32  convert_ch_to_uni(struct nls_table *nls, u8 *ch, u16 *uni, s32 *loss
 
 static u16 nls_upper(struct super_block *sb, u16 a)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
-	if (SDFAT_SB(sb)->options.casesensitive)
+	if (EXFAT_SB(sb)->options.casesensitive)
 		return a;
 	if ((fsi->vol_utbl)[get_col_index(a)] != NULL)
 		return (fsi->vol_utbl)[get_col_index(a)][get_row_index(a)];
@@ -126,7 +126,7 @@ s32 nls_uni16s_to_sfn(struct super_block *sb, UNI_NAME_T *p_uniname, DOS_NAME_T 
 	u8 *dosname = p_dosname->name;
 	u16 *uniname = p_uniname->name;
 	u16 *p, *last_period;
-	struct nls_table *nls = SDFAT_SB(sb)->nls_disk;
+	struct nls_table *nls = EXFAT_SB(sb)->nls_disk;
 
 	/* DOSNAME is filled with space */
 	for (i = 0; i < DOS_NAME_LENGTH; i++)
@@ -227,7 +227,7 @@ s32 nls_sfn_to_uni16s(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T 
 	u8 buf[MAX_DOSNAME_BUF_SIZE];
 	u8 *dosname = p_dosname->name;
 	u16 *uniname = p_uniname->name;
-	struct nls_table *nls = SDFAT_SB(sb)->nls_disk;
+	struct nls_table *nls = EXFAT_SB(sb)->nls_disk;
 
 	if (*dosname == 0x05) {
 		*buf = 0xE5;
@@ -339,7 +339,7 @@ static s32 __nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *p_uniname
 	s32 i, j, len, out_len = 0;
 	u8 buf[MAX_CHARSET_SIZE];
 	const u16 *uniname = p_uniname->name;
-	struct nls_table *nls = SDFAT_SB(sb)->nls_io;
+	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
 	i = 0;
 	while ((i < MAX_NAME_LENGTH) && (out_len < (buflen-1))) {
@@ -374,7 +374,7 @@ static s32 __nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring,
 	s32 i, unilen, lossy = NLS_NAME_NO_LOSSY;
 	u16 upname[MAX_NAME_LENGTH+1];
 	u16 *uniname = p_uniname->name;
-	struct nls_table *nls = SDFAT_SB(sb)->nls_io;
+	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
 	BUG_ON(!len);
 
@@ -407,7 +407,7 @@ static s32 __nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring,
 
 s32 nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *uniname, u8 *p_cstring, s32 buflen)
 {
-	if (SDFAT_SB(sb)->options.utf8)
+	if (EXFAT_SB(sb)->options.utf8)
 		return __nls_utf16s_to_vfsname(sb, uniname, p_cstring, buflen);
 
 	return __nls_uni16s_to_vfsname(sb, uniname, p_cstring, buflen);
@@ -415,7 +415,7 @@ s32 nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *uniname, u8 *p_cst
 
 s32 nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring, const s32 len, UNI_NAME_T *uniname, s32 *p_lossy)
 {
-	if (SDFAT_SB(sb)->options.utf8)
+	if (EXFAT_SB(sb)->options.utf8)
 		return __nls_vfsname_to_utf16s(sb, p_cstring, len, uniname, p_lossy);
 	return __nls_vfsname_to_uni16s(sb, p_cstring, len, uniname, p_lossy);
 }

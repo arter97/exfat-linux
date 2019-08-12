@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : xattr.c                                                   */
-/*  PURPOSE : sdFAT code for supporting xattr(Extended File Attributes) */
+/*  PURPOSE : exFAT code for supporting xattr(Extended File Attributes) */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -31,13 +31,13 @@
 #include <linux/fs.h>
 #include <linux/xattr.h>
 #include <linux/dcache.h>
-#include "sdfat.h"
+#include "exfat.h"
 
-#ifndef CONFIG_SDFAT_VIRTUAL_XATTR_SELINUX_LABEL
-#define CONFIG_SDFAT_VIRTUAL_XATTR_SELINUX_LABEL	("undefined")
+#ifndef CONFIG_EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
+#define CONFIG_EXFAT_VIRTUAL_XATTR_SELINUX_LABEL	("undefined")
 #endif
 
-static const char default_xattr[] = CONFIG_SDFAT_VIRTUAL_XATTR_SELINUX_LABEL;
+static const char default_xattr[] = CONFIG_EXFAT_VIRTUAL_XATTR_SELINUX_LABEL;
 
 static int can_support(const char *name)
 {
@@ -46,7 +46,7 @@ static int can_support(const char *name)
 	return 0;
 }
 
-ssize_t sdfat_listxattr(struct dentry *dentry, char *list, size_t size)
+ssize_t exfat_listxattr(struct dentry *dentry, char *list, size_t size)
 {
 	return 0;
 }
@@ -55,7 +55,7 @@ ssize_t sdfat_listxattr(struct dentry *dentry, char *list, size_t size)
 /*************************************************************************
  * INNER FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
  *************************************************************************/
-static int __sdfat_xattr_check_support(const char *name)
+static int __exfat_xattr_check_support(const char *name)
 {
 	if (can_support(name))
 		return -EOPNOTSUPP;
@@ -63,7 +63,7 @@ static int __sdfat_xattr_check_support(const char *name)
 	return 0;
 }
 
-ssize_t __sdfat_getxattr(const char *name, void *value, size_t size)
+ssize_t __exfat_getxattr(const char *name, void *value, size_t size)
 {
 	if (can_support(name))
 		return -EOPNOTSUPP;
@@ -79,53 +79,53 @@ ssize_t __sdfat_getxattr(const char *name, void *value, size_t size)
  * FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
  *************************************************************************/
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
-static int sdfat_xattr_get(const struct xattr_handler *handler,
+static int exfat_xattr_get(const struct xattr_handler *handler,
 		struct dentry *dentry, struct inode *inode,
 		const char *name, void *buffer, size_t size)
 {
-	return __sdfat_getxattr(name, buffer, size);
+	return __exfat_getxattr(name, buffer, size);
 }
 
-static int sdfat_xattr_set(const struct xattr_handler *handler,
+static int exfat_xattr_set(const struct xattr_handler *handler,
 		struct dentry *dentry, struct inode *inode,
 		const char *name, const void *value, size_t size,
 		int flags)
 {
-	return __sdfat_xattr_check_support(name);
+	return __exfat_xattr_check_support(name);
 }
 
-const struct xattr_handler sdfat_xattr_handler = {
+const struct xattr_handler exfat_xattr_handler = {
 	.prefix = "",  /* match anything */
-	.get = sdfat_xattr_get,
-	.set = sdfat_xattr_set,
+	.get = exfat_xattr_get,
+	.set = exfat_xattr_set,
 };
 
-const struct xattr_handler *sdfat_xattr_handlers[] = {
-	&sdfat_xattr_handler,
+const struct xattr_handler *exfat_xattr_handlers[] = {
+	&exfat_xattr_handler,
 	NULL
 };
 
-void setup_sdfat_xattr_handler(struct super_block *sb)
+void setup_exfat_xattr_handler(struct super_block *sb)
 {
-	sb->s_xattr = sdfat_xattr_handlers;
+	sb->s_xattr = exfat_xattr_handlers;
 }
 #else /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0) */
-int sdfat_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags)
+int exfat_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags)
 {
-	return __sdfat_xattr_check_support(name);
+	return __exfat_xattr_check_support(name);
 }
 
-ssize_t sdfat_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
+ssize_t exfat_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
 {
-	return __sdfat_getxattr(name, value, size);
+	return __exfat_getxattr(name, value, size);
 }
 
-int sdfat_removexattr(struct dentry *dentry, const char *name)
+int exfat_removexattr(struct dentry *dentry, const char *name)
 {
-	return __sdfat_xattr_check_support(name);
+	return __exfat_xattr_check_support(name);
 }
 
-void setup_sdfat_xattr_handler(struct super_block *sb)
+void setup_exfat_xattr_handler(struct super_block *sb)
 {
 	/* DO NOTHING */
 }

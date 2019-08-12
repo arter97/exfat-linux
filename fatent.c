@@ -19,7 +19,7 @@
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
 /*  FILE    : fatent.c                                                  */
-/*  PURPOSE : sdFAT FAT entry manager                                   */
+/*  PURPOSE : exFAT FAT entry manager                                   */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -29,7 +29,7 @@
 
 #include <asm/unaligned.h>
 
-#include "sdfat.h"
+#include "exfat.h"
 #include "core.h"
 
 /*----------------------------------------------------------------------*/
@@ -53,7 +53,7 @@ static s32 exfat_ent_get(struct super_block *sb, u32 loc, u32 *content)
 	u32 off, _content;
 	u64 sec;
 	u8 *fat_sector;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	/* fsi->vol_type == EXFAT */
 	sec = fsi->FAT1_start_sector + (loc >> (sb->s_blocksize_bits-2));
@@ -79,7 +79,7 @@ static s32 exfat_ent_set(struct super_block *sb, u32 loc, u32 content)
 	u64 sec;
 	u8 *fat_sector;
 	__le32 *fat_entry;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	sec = fsi->FAT1_start_sector + (loc >> (sb->s_blocksize_bits-2));
 	off = (loc << 2) & (u32)(sb->s_blocksize - 1);
@@ -101,7 +101,7 @@ static s32 fat32_ent_get(struct super_block *sb, u32 loc, u32 *content)
 	u32 off, _content;
 	u64 sec;
 	u8 *fat_sector;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	sec = fsi->FAT1_start_sector + (loc >> (sb->s_blocksize_bits-2));
 	off = (loc << 2) & (u32)(sb->s_blocksize - 1);
@@ -129,7 +129,7 @@ static s32 fat32_ent_set(struct super_block *sb, u32 loc, u32 content)
 	u64 sec;
 	u8 *fat_sector;
 	__le32 *fat_entry;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	content &= FATENT_FAT32_VALID_MASK;
 
@@ -153,7 +153,7 @@ static s32 fat16_ent_get(struct super_block *sb, u32 loc, u32 *content)
 	u32 off, _content;
 	u64 sec;
 	u8 *fat_sector;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	sec = fsi->FAT1_start_sector + (loc >> (sb->s_blocksize_bits-1));
 	off = (loc << 1) & (u32)(sb->s_blocksize - 1);
@@ -181,7 +181,7 @@ static s32 fat16_ent_set(struct super_block *sb, u32 loc, u32 content)
 	u64 sec;
 	u8 *fat_sector;
 	__le16 *fat_entry;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	content &= FATENT_FAT16_VALID_MASK;
 
@@ -204,7 +204,7 @@ static s32 fat12_ent_get(struct super_block *sb, u32 loc, u32 *content)
 	u32 off, _content;
 	u64 sec;
 	u8 *fat_sector;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	sec = fsi->FAT1_start_sector + ((loc + (loc >> 1)) >> sb->s_blocksize_bits);
 	off = (loc + (loc >> 1)) & (u32)(sb->s_blocksize - 1);
@@ -245,7 +245,7 @@ static s32 fat12_ent_set(struct super_block *sb, u32 loc, u32 content)
 	u32 off;
 	u64 sec;
 	u8 *fat_sector, *fat_entry;
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	content &= FATENT_FAT12_VALID_MASK;
 
@@ -320,7 +320,7 @@ static FATENT_OPS_T exfat_ent_ops = {
 
 s32 fat_ent_ops_init(struct super_block *sb)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	switch (fsi->vol_type) {
 	case EXFAT:
@@ -364,23 +364,23 @@ static inline bool is_valid_clus(FS_INFO_T *fsi, u32 clus)
 
 s32 fat_ent_get(struct super_block *sb, u32 loc, u32 *content)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	s32 err;
 
 	if (!is_valid_clus(fsi, loc)) {
-		sdfat_fs_error(sb, "invalid access to FAT (entry 0x%08x)", loc);
+		exfat_fs_error(sb, "invalid access to FAT (entry 0x%08x)", loc);
 		return -EIO;
 	}
 
 	err = fsi->fatent_ops->ent_get(sb, loc, content);
 	if (err) {
-		sdfat_fs_error(sb, "failed to access to FAT "
+		exfat_fs_error(sb, "failed to access to FAT "
 				"(entry 0x%08x, err:%d)", loc, err);
 		return err;
 	}
 
 	if (!is_reserved_clus(*content) && !is_valid_clus(fsi, *content)) {
-		sdfat_fs_error(sb, "invalid access to FAT (entry 0x%08x) "
+		exfat_fs_error(sb, "invalid access to FAT (entry 0x%08x) "
 			"bogus content (0x%08x)", loc, *content);
 		return -EIO;
 	}
@@ -390,7 +390,7 @@ s32 fat_ent_get(struct super_block *sb, u32 loc, u32 *content)
 
 s32 fat_ent_set(struct super_block *sb, u32 loc, u32 content)
 {
-	FS_INFO_T *fsi = &(SDFAT_SB(sb)->fsi);
+	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	return fsi->fatent_ops->ent_set(sb, loc, content);
 }
@@ -403,13 +403,13 @@ s32 fat_ent_get_safe(struct super_block *sb, u32 loc, u32 *content)
 		return err;
 
 	if (IS_CLUS_FREE(*content)) {
-		sdfat_fs_error(sb, "invalid access to FAT free cluster "
+		exfat_fs_error(sb, "invalid access to FAT free cluster "
 				"(entry 0x%08x)", loc);
 		return -EIO;
 	}
 
 	if (IS_CLUS_BAD(*content)) {
-		sdfat_fs_error(sb, "invalid access to FAT bad cluster "
+		exfat_fs_error(sb, "invalid access to FAT bad cluster "
 				"(entry 0x%08x)", loc);
 		return -EIO;
 	}
