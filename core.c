@@ -785,7 +785,7 @@ static s32 find_empty_entry(struct inode *inode, CHAIN_T *p_dir, s32 num_entries
 		clu.flags = p_dir->flags;
 
 		/* (0) check if there are reserved clusters
-		 * (create_dir 의 주석 참고)
+		 * Refer to create_dir's comments
 		 */
 		if (!IS_CLUS_EOF(fsi->used_clusters) &&
 			((fsi->used_clusters + fsi->reserved_clusters) >= (fsi->num_clusters - 2)))

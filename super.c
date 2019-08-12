@@ -2156,7 +2156,7 @@ static void exfat_truncate(struct inode *inode, loff_t old_size)
 	else
 		mark_inode_dirty(inode);
 
-	// FIXME: 확인 요망
+	// FIXME: Please check
 	// inode->i_blocks = ((EXFAT_I(inode)->i_size_ondisk + (fsi->cluster_size - 1))
 	inode->i_blocks = ((i_size_read(inode) + (fsi->cluster_size - 1)) &
 			~((loff_t)fsi->cluster_size - 1)) >> inode->i_blkbits;
@@ -2342,13 +2342,14 @@ static int exfat_get_block(struct inode *inode, sector_t iblock,
 				 */
 
 				/* 20130723 CHECK
-				 * Truncate와 동시에 발생할 경우,
-				 * i_size < (i_block 위치) 면서 buffer_delay()가
-				 * 켜져있을 수 있다.
+				 * If happened concurrently with truncation,
+				 * buffer_delay() can be left on whilst
+				 * i_size < (position of i_block).
 				 *
-				 * 기존에 할당된 영역을 다시 쓸 뿐이므로 큰 문제
-				 * 없지만, 그 경우, 미리 i_size_aligned 가 확장된
-				 * 영역이어야 한다.
+				 * It's not a big deal as we're re-writing
+				 * previously allocated blocks, but in such cases,
+				 * it has to be an area with i_size_aligned expanded
+				 * beforehand.
 				 */
 
 				/* FOR GRACEFUL ERROR HANDLING */
