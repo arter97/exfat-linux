@@ -191,17 +191,20 @@ s32 fscore_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_sync)
 
 static inline s32 __fs_meta_sync(struct super_block *sb, s32 do_sync)
 {
-#ifdef CONFIG_EXFAT_DELAYED_META_DIRTY
-	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
+	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+	FS_INFO_T *fsi;
+
+	if (!sbi->options.delayed_meta)
+		return 0;
+
+	fsi = &(sbi->fsi);
 
 	if (fsi->vol_type != EXFAT) {
 		MMSG("meta flush in fs_sync(sync=%d)\n", do_sync);
 		fcache_flush(sb, 0);
 		dcache_flush(sb, 0);
 	}
-#else
-	/* DO NOTHING */
-#endif
+
 	return 0;
 }
 
@@ -2700,10 +2703,8 @@ s32 fscore_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
 	if (!ep)
 		return -EIO;
 
-#ifdef CONFIG_EXFAT_CHECK_RO_ATTR
 	if (fsi->fs_func->get_entry_attr(ep) & ATTR_READONLY)
 		return -EPERM;
-#endif
 
 	/* check whether new dir is existing directory and empty */
 	if (new_inode) {
@@ -2835,11 +2836,8 @@ s32 fscore_remove(struct inode *inode, FILE_ID_T *fid)
 	if (!ep)
 		return -EIO;
 
-
-#ifdef CONFIG_EXFAT_CHECK_RO_ATTR
 	if (fsi->fs_func->get_entry_attr(ep) & ATTR_READONLY)
 		return -EPERM;
-#endif
 
 	fs_set_vol_flags(sb, VOL_DIRTY);
 
@@ -3385,10 +3383,8 @@ s32 fscore_unlink(struct inode *inode, FILE_ID_T *fid)
 	if (!ep)
 		return -EIO;
 
-#ifdef CONFIG_EXFAT_CHECK_RO_ATTR
 	if (EXFAT_SB(sb)->fsi.fs_func->get_entry_attr(ep) & ATTR_READONLY)
 		return -EPERM;
-#endif
 
 	fs_set_vol_flags(sb, VOL_DIRTY);
 
@@ -3638,10 +3634,8 @@ s32 fscore_rmdir(struct inode *inode, FILE_ID_T *fid)
 	if (!ep)
 		return -EIO;
 
-#ifdef CONFIG_EXFAT_CHECK_RO_ATTR
 	if (EXFAT_SB(sb)->fsi.fs_func->get_entry_attr(ep) & ATTR_READONLY)
 		return -EPERM;
-#endif
 
 	clu_to_free.dir = fid->start_clu;
 	clu_to_free.size = ((fid->size-1) >> fsi->cluster_size_bits) + 1;

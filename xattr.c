@@ -27,6 +27,8 @@
 /*                                                                      */
 /************************************************************************/
 
+#ifdef CONFIG_EXFAT_VIRTUAL_XATTR
+
 #include <linux/file.h>
 #include <linux/fs.h>
 #include <linux/xattr.h>
@@ -130,3 +132,5 @@ void setup_exfat_xattr_handler(struct super_block *sb)
 	/* DO NOTHING */
 }
 #endif
+
+#endif /* CONFIG_EXFAT_VIRTUAL_XATTR */

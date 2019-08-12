@@ -42,16 +42,6 @@
 #include "exfat.h"
 #include "version.h"
 
-#ifdef CONFIG_EXFAT_SUPPORT_STLOG
-#ifdef CONFIG_PROC_FSLOG
-#include <linux/fslog.h>
-#else
-#include <linux/stlog.h>
-#endif
-#else
-#define ST_LOG(fmt, ...)
-#endif
-
 /*************************************************************************
  * FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
  *************************************************************************/
@@ -82,12 +72,6 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 		vaf.va = &args;
 		pr_err("[EXFAT](%s[%d:%d]):ERR: %pV\n",
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
-#ifdef CONFIG_EXFAT_SUPPORT_STLOG
-		if (opts->errors == EXFAT_ERRORS_RO && !(sb->s_flags & MS_RDONLY)) {
-			ST_LOG("[EXFAT](%s[%d:%d]):ERR: %pV\n",
-				sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
-		}
-#endif
 		va_end(args);
 	}
 
@@ -99,10 +83,6 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 		exfat_statistics_set_mnt_ro();
 		pr_err("[EXFAT](%s[%d:%d]): Filesystem has been set "
 			"read-only\n", sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
-#ifdef CONFIG_EXFAT_SUPPORT_STLOG
-		ST_LOG("[EXFAT](%s[%d:%d]): Filesystem has been set read-only\n",
-			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
-#endif
 	}
 }
 EXPORT_SYMBOL(__exfat_fs_error);
@@ -110,7 +90,6 @@ EXPORT_SYMBOL(__exfat_fs_error);
 /**
  * __exfat_msg() - print preformated EXFAT specific messages.
  * All logs except what uses exfat_fs_error() should be written by __exfat_msg()
- * If 'st' is set, the log is propagated to ST_LOG.
  */
 void __exfat_msg(struct super_block *sb, const char *level, int st, const char *fmt, ...)
 {
@@ -125,12 +104,6 @@ void __exfat_msg(struct super_block *sb, const char *level, int st, const char *
 	/* level means KERN_ pacility level */
 	printk("%s[EXFAT](%s[%d:%d]): %pV\n", level,
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
-#ifdef CONFIG_EXFAT_SUPPORT_STLOG
-	if (st) {
-		ST_LOG("[EXFAT](%s[%d:%d]): %pV\n",
-				sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
-	}
-#endif
 	va_end(args);
 }
 EXPORT_SYMBOL(__exfat_msg);
@@ -138,9 +111,6 @@ EXPORT_SYMBOL(__exfat_msg);
 void exfat_log_version(void)
 {
 	pr_info("[EXFAT] Filesystem version %s\n", EXFAT_VERSION);
-#ifdef CONFIG_EXFAT_SUPPORT_STLOG
-	ST_LOG("[EXFAT] Filesystem version %s\n", EXFAT_VERSION);
-#endif
 }
 EXPORT_SYMBOL(exfat_log_version);
 

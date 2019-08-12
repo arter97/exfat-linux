@@ -128,6 +128,7 @@ struct exfat_mount_options {
 	unsigned char discard;      /* flag on if -o dicard specified and device support discard() */
 	unsigned char fs_type;      /* fs_type that user specified */
 	unsigned short adj_req;     /* support aligned mpage write */
+	unsigned char delayed_meta; /* delay flushing dirty metadata */
 };
 
 #define EXFAT_HASH_BITS    8

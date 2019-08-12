@@ -1,3 +1,5 @@
+#ifdef CONFIG_EXFAT_STATISTICS
+
 #include "exfat.h"
 
 #define EXFAT_VF_CLUS_MAX	7	/* 512 Byte ~ 32 KByte */
@@ -279,3 +281,5 @@ void exfat_statistics_set_vol_size(struct super_block *sb)
 	else
 		statistics.vol_size[EXFAT_VOL_XTB]++;
 }
+
+#endif /* CONFIG_EXFAT_STATISTICS */
