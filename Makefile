@@ -2,23 +2,41 @@
 # Makefile for the linux FAT12/16/32(VFAT)/64(exFAT) filesystem driver.
 #
 
-obj-$(CONFIG_EXFAT_FS) += exfat_fs.o
+ifneq ($(KERNELRELEASE),)
+# Called from inline kernel build
+obj-$(CONFIG_EXFAT_FS) += exfat.o
 
-exfat_fs-objs	:= exfat.o core.o core_fat.o core_exfat.o api.o blkdev.o \
+exfat-objs	:= super.o core.o core_fat.o core_exfat.o api.o blkdev.o \
 		   fatent.o amap_smart.o cache.o dfr.o nls.o misc.o \
-		   mpage.o extent.o
+		   mpage.o extent.o xattr.o statistics.o
+else
+# Called from external kernel module build
 
-exfat_fs-$(CONFIG_EXFAT_VIRTUAL_XATTR) += xattr.o
-exfat_fs-$(CONFIG_EXFAT_STATISTICS) += statistics.o
+KERNELRELEASE	?= $(shell uname -r)
+KDIR	?= /lib/modules/${KERNELRELEASE}/build
+MDIR	?= /lib/modules/${KERNELRELEASE}
+PWD	:= $(shell pwd)
 
+export CONFIG_EXFAT_FS := m
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(MAKE) -C $(KDIR) M=$(PWD) clean
 
-cscope:
-	rm -rf cscope.files cscope.files
-	find $(PWD) \( -name '*.c' -o -name '*.cpp' -o -name '*.cc' -o -name '*.h' -o -name '*.s' -o -name '*.S' \) -print > cscope.files
-	cscope
+help:
+	$(MAKE) -C $(KDIR) M=$(PWD) help
+
+install: exfat.ko
+	rm -f ${MDIR}/kernel/fs/exfat/exfat.ko
+	install -m644 -b -D exfat.ko ${MDIR}/kernel/fs/exfat/exfat.ko
+	depmod -aq
+
+uninstall:
+	rm -rf ${MDIR}/kernel/fs/exfat
+	depmod -aq
+
+endif
+
+.PHONY : all clean install uninstall
