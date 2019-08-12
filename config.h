@@ -17,16 +17,6 @@
 
 #ifndef _EXFAT_CONFIG_H
 #define _EXFAT_CONFIG_H
-/*======================================================================*/
-/*                                                                      */
-/*                        FFS CONFIGURATIONS                            */
-/*                  (CHANGE THIS PART IF REQUIRED)                      */
-/*                                                                      */
-/*======================================================================*/
-
-/*----------------------------------------------------------------------*/
-/* Feature Config                                                       */
-/*----------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------*/
 /* Debug/Experimental Config                                            */
@@ -34,16 +24,6 @@
 //#define CONFIG_EXFAT_TRACE_IO
 //#define CONFIG_EXFAT_TRACE_LOCK /* Trace elapsed time in lock_super(sb) */
 
-/*----------------------------------------------------------------------*/
-/* Defragmentation Config                                               */
-/*----------------------------------------------------------------------*/
-//#define	CONFIG_EXFAT_DFR
-//#define	CONFIG_EXFAT_DFR_PACKING
-//#define	CONFIG_EXFAT_DFR_DEBUG
-
-/*----------------------------------------------------------------------*/
-/* Config for Kernel equal or newer than 3.7                            */
-/*----------------------------------------------------------------------*/
 #ifndef CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS
 #define CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS	(dirty_writeback_interval)
 #endif
@@ -51,6 +31,7 @@
 /*----------------------------------------------------------------------*/
 /* Default Kconfig                                                      */
 /*----------------------------------------------------------------------*/
+
 #ifndef CONFIG_EXFAT_DEFAULT_CODEPAGE /* if Kconfig lacked codepage */
 #define CONFIG_EXFAT_DEFAULT_CODEPAGE   437
 #endif
@@ -59,22 +40,12 @@
 #define CONFIG_EXFAT_DEFAULT_IOCHARSET  "utf8"
 #endif
 
-#ifndef CONFIG_EXFAT_FAT32_SHORTNAME_SEQ /* Shortname ~1, ... ~9 have higher
-					  * priority (WIN32/VFAT-like)
-					  */
-//#define CONFIG_EXFAT_FAT32_SHORTNAME_SEQ
-#endif
-
 #ifndef CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
 #define CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
 #endif
 
 #ifndef CONFIG_EXFAT_FAT_MIRRORING /* if Kconfig lacked fat-mirroring option */
 #define CONFIG_EXFAT_FAT_MIRRORING /* Write FAT 1, FAT 2 simultaneously */
-#endif
-
-#ifndef CONFIG_EXFAT_RESTRICT_EXT_ONLY_SFN
-#define CONFIG_EXFAT_RESTRICT_EXT_ONLY_SFN
 #endif
 
 #endif /* _EXFAT_CONFIG_H */

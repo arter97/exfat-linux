@@ -129,7 +129,6 @@ typedef struct {
 } DEV_INFO_T;
 
 typedef struct {
-	u32      FatType;
 	u32      ClusterSize;
 	u32      NumClusters;
 	u32      FreeClusters;
@@ -251,7 +250,6 @@ typedef struct {
 
 typedef struct __FS_INFO_T {
 	s32	 bd_opened;              // opened or not
-	u32      vol_type;               // volume FAT type
 	u32      vol_id;                 // volume serial number
 	u64      num_sectors;            // num of sectors in volume
 	u32      num_clusters;           // num of clusters in volume
@@ -357,39 +355,6 @@ void fsapi_invalidate_extent(struct inode *inode);
 
 /* bdev management */
 s32 fsapi_check_bdi_valid(struct super_block *sb);
-
-#ifdef CONFIG_EXFAT_DFR
-/*----------------------------------------------------------------------*/
-/*  Defragmentation related                                             */
-/*----------------------------------------------------------------------*/
-
-s32 fsapi_dfr_get_info(struct super_block *sb, void *arg);
-
-s32 fsapi_dfr_scan_dir(struct super_block *sb, void *args);
-
-s32 fsapi_dfr_validate_clus(struct inode *inode, void *chunk, int skip_prev);
-s32 fsapi_dfr_reserve_clus(struct super_block *sb, s32 nr_clus);
-s32 fsapi_dfr_mark_ignore(struct super_block *sb, unsigned int clus);
-void fsapi_dfr_unmark_ignore_all(struct super_block *sb);
-
-s32 fsapi_dfr_map_clus(struct inode *inode, u32 clu_offset, u32 *clu);
-void fsapi_dfr_writepage_endio(struct page *page);
-
-void fsapi_dfr_update_fat_prev(struct super_block *sb, int force);
-void fsapi_dfr_update_fat_next(struct super_block *sb);
-void fsapi_dfr_check_discard(struct super_block *sb);
-void fsapi_dfr_free_clus(struct super_block *sb, u32 clus);
-
-s32 fsapi_dfr_check_dfr_required(struct super_block *sb, int *totalau, int *cleanau, int *fullau);
-s32 fsapi_dfr_check_dfr_on(struct inode *inode, loff_t start, loff_t end, s32 cancel, const char *caller);
-
-
-#ifdef CONFIG_EXFAT_DFR_DEBUG
-void fsapi_dfr_spo_test(struct super_block *sb, int flag, const char *caller);
-#endif	/* CONFIG_EXFAT_DFR_DEBUG */
-
-#endif	/* CONFIG_EXFAT_DFR */
-
 
 #ifdef __cplusplus
 }

@@ -185,34 +185,6 @@ static void mpage_write_end_io(struct bio *bio, int err)
 }
 #endif
 
-/* __check_dfr_on() and __dfr_writepage_end_io() functions
- * are copied from exfat.c
- * Each function should be same perfectly
- */
-static inline int __check_dfr_on(struct inode *inode, loff_t start, loff_t end, const char *fname)
-{
-#ifdef	CONFIG_EXFAT_DFR
-	struct defrag_info *ino_dfr = &(EXFAT_I(inode)->dfr_info);
-
-	if ((atomic_read(&ino_dfr->stat) == DFR_INO_STAT_REQ) &&
-			fsapi_dfr_check_dfr_on(inode, start, end, 0, fname))
-		return 1;
-#endif
-	return 0;
-}
-
-static inline int __dfr_writepage_end_io(struct page *page)
-{
-#ifdef	CONFIG_EXFAT_DFR
-	struct defrag_info *ino_dfr = &(EXFAT_I(page->mapping->host)->dfr_info);
-
-	if (atomic_read(&ino_dfr->stat) == DFR_INO_STAT_REQ)
-		fsapi_dfr_writepage_endio(page);
-#endif
-	return 0;
-}
-
-
 static inline unsigned int __calc_size_to_align(struct super_block *sb)
 {
 	struct block_device *bdev = sb->s_bdev;
@@ -276,8 +248,6 @@ static void __mpage_write_end_io(struct bio *bio, int err)
 			if (page->mapping)
 				mapping_set_error(page->mapping, err);
 		}
-
-		__dfr_writepage_end_io(page);
 
 		end_page_writeback(page);
 	} while (bvec >= bio->bi_io_vec);
@@ -556,26 +526,6 @@ alloc_new:
 
 	BUG_ON(PageWriteback(page));
 	set_page_writeback(page);
-
-	/*
-	 * FIXME FOR DEFRAGMENTATION : CODE REVIEW IS REQUIRED
-	 *
-	 * Turn off MAPPED flag in victim's bh if defrag on.
-	 * Another write_begin can starts after get_block for defrag victims
-	 * called.
-	 * In this case, write_begin calls get_block and get original block
-	 * number and previous defrag will be canceled.
-	 */
-	if (unlikely(__check_dfr_on(inode, (loff_t)(page->index << PAGE_SHIFT),
-			(loff_t)((page->index + 1) << PAGE_SHIFT), __func__))) {
-		struct buffer_head *head = page_buffers(page);
-		struct buffer_head *bh = head;
-
-		do {
-			clear_buffer_mapped(bh);
-			bh = bh->b_this_page;
-		} while (bh != head);
-	}
 
 	unlock_page(page);
 	if (boundary || (first_unmapped != blocks_per_page)) {

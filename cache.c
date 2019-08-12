@@ -235,25 +235,6 @@ u8 *fcache_getblk(struct super_block *sb, u64 sec)
 	return bp->bh->b_data;
 }
 
-static inline int __mark_delayed_dirty(struct super_block *sb, cache_ent_t *bp)
-{
-	struct exfat_sb_info *sbi = EXFAT_SB(sb);
-
-	if (sbi->options.delayed_meta) {
-		FS_INFO_T *fsi = &(sbi->fsi);
-
-		if (fsi->vol_type == EXFAT)
-			return -ENOTSUPP;
-
-		bp->flag |= DIRTYBIT;
-		return 0;
-	} else {
-		return -ENOTSUPP;
-	}
-}
-
-
-
 s32 fcache_modify(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
@@ -263,9 +244,6 @@ s32 fcache_modify(struct super_block *sb, u64 sec)
 		exfat_fs_error(sb, "Can`t find fcache (sec 0x%016llx)", sec);
 		return -EIO;
 	}
-
-	if (!__mark_delayed_dirty(sb, bp))
-		return 0;
 
 	if (write_sect(sb, sec, bp->bh, 0))
 		return -EIO;
@@ -602,7 +580,6 @@ u8 *dcache_getblk(struct super_block *sb, u64 sec)
 
 s32 dcache_modify(struct super_block *sb, u64 sec)
 {
-	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	s32 ret = -EIO;
 	cache_ent_t *bp;
 
@@ -612,13 +589,6 @@ s32 dcache_modify(struct super_block *sb, u64 sec)
 	if (unlikely(!bp)) {
 		exfat_fs_error(sb, "Can`t find dcache (sec 0x%016llx)", sec);
 		return -EIO;
-	}
-
-	if (sbi->options.delayed_meta) {
-		if (EXFAT_SB(sb)->fsi.vol_type != EXFAT) {
-			bp->flag |= DIRTYBIT;
-			return 0;
-		}
 	}
 
 	ret = write_sect(sb, sec, bp->bh, 0);

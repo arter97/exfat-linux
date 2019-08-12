@@ -80,7 +80,6 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
 	} else if (opts->errors == EXFAT_ERRORS_RO && !(sb->s_flags & MS_RDONLY)) {
 		sb->s_flags |= MS_RDONLY;
-		exfat_statistics_set_mnt_ro();
 		pr_err("[EXFAT](%s[%d:%d]): Filesystem has been set "
 			"read-only\n", sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
 	}

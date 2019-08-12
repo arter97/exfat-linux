@@ -68,7 +68,4 @@ config EXFAT_DBG_WARNON
 
 endif # if EXFAT_DEBUG
 
-config EXFAT_STATISTICS
-	bool "enable statistics for bigdata"
-
 endif # if EXFAT_FS

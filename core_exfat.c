@@ -1527,7 +1527,6 @@ s32 mount_exfat(struct super_block *sb, pbr_t *p_pbr)
 	fsi->num_clusters = le32_to_cpu(p_bpb->bsx.clu_count) + 2;
 	/* because the cluster index starts with 2 */
 
-	fsi->vol_type = EXFAT;
 	fsi->vol_id = le32_to_cpu(p_bpb->bsx.vol_serial);
 
 	fsi->root_dir = le32_to_cpu(p_bpb->bsx.root_cluster);
