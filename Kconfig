@@ -28,10 +28,6 @@ config EXFAT_DEFAULT_IOCHARSET
 	  that most of your exFAT filesystems use, and can be overridden
 	  with the "iocharset" mount option for exFAT filesystems.
 
-config EXFAT_ALIGNED_MPAGE_WRITE
-	bool "Enable supporting aligned mpage_write"
-	default y
-
 config EXFAT_VIRTUAL_XATTR
 	bool "Virtual xattr support for exFAT"
 	default y

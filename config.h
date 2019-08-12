@@ -40,10 +40,6 @@
 #define CONFIG_EXFAT_DEFAULT_IOCHARSET  "utf8"
 #endif
 
-#ifndef CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
-#define CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
-#endif
-
 #ifndef CONFIG_EXFAT_FAT_MIRRORING /* if Kconfig lacked fat-mirroring option */
 #define CONFIG_EXFAT_FAT_MIRRORING /* Write FAT 1, FAT 2 simultaneously */
 #endif

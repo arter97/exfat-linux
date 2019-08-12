@@ -126,7 +126,6 @@ struct exfat_mount_options {
 	unsigned char symlink;      /* support symlink operation */
 	unsigned char errors;       /* on error: continue, panic, remount-ro */
 	unsigned char discard;      /* flag on if -o dicard specified and device support discard() */
-	unsigned short adj_req;     /* support aligned mpage write */
 	unsigned char delayed_meta; /* delay flushing dirty metadata */
 };
 
@@ -269,12 +268,6 @@ s32  nls_sfn_to_uni16s(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T
 s32  nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *uniname, u8 *p_cstring, s32 len);
 s32  nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring,
 			const s32 len, UNI_NAME_T *uniname, s32 *p_lossy);
-
-/* exfat/mpage.c */
-#ifdef CONFIG_EXFAT_ALIGNED_MPAGE_WRITE
-int exfat_mpage_writepages(struct address_space *mapping,
-			struct writeback_control *wbc, get_block_t *get_block);
-#endif
 
 /* exfat/xattr.c */
 #ifdef CONFIG_EXFAT_VIRTUAL_XATTR
