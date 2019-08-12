@@ -340,7 +340,7 @@ extern struct timeval __t2;
 #define TIME_END(e)	exfat_time_current_usec(e)
 #define TIME_ELAPSED(s, e) ((u32)(((e)->tv_sec - (s)->tv_sec) * 1000000 + \
 			((e)->tv_usec - (s)->tv_usec)))
-#define PRINT_TIME(n)	pr_info("[EXFAT] Elapsed time %d = %d (usec)\n", n, (__t2 - __t1))
+#define PRINT_TIME(n)	pr_info("exFAT: Elapsed time %d = %d (usec)\n", n, (__t2 - __t1))
 #else /* CONFIG_EXFAT_TRACE_ELAPSED_TIME */
 #define TIME_GET(tv)    (0)
 #define TIME_START(s)
@@ -429,10 +429,9 @@ extern void __exfat_dmsg(int level, const char *fmt, ...) __printf(2, 3) __cold;
 
 #endif /* CONFIG_EXFAT_DBG_MSG */
 
-
 #define ASSERT(expr)	{					\
 	if (!(expr)) {						\
-		pr_err("Assertion failed! %s\n", #expr);	\
+		pr_err("exFAT: Assertion failed! %s\n", #expr);	\
 		BUG_ON(1);					\
 	}							\
 }

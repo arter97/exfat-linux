@@ -62,13 +62,13 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 		va_start(args, fmt);
 		vaf.fmt = fmt;
 		vaf.va = &args;
-		pr_err("[EXFAT](%s[%d:%d]):ERR: %pV\n",
+		pr_err("exFAT-fs (%s[%d:%d]): ERR: %pV\n",
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
 		va_end(args);
 	}
 
 	if (opts->errors == EXFAT_ERRORS_PANIC) {
-		panic("[EXFAT](%s[%d:%d]): fs panic from previous error\n",
+		panic("exFAT-fs (%s[%d:%d]): fs panic from previous error\n",
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
 	} else if (opts->errors == EXFAT_ERRORS_RO && !EXFAT_IS_SB_RDONLY(sb)) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
@@ -76,7 +76,7 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 #else
 		sb->s_flags |= SB_RDONLY;
 #endif
-		pr_err("[EXFAT](%s[%d:%d]): Filesystem has been set "
+		pr_err("exFAT-fs (%s[%d:%d]): file-system has been set to "
 			"read-only\n", sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
 	}
 }
@@ -97,7 +97,7 @@ void __exfat_msg(struct super_block *sb, const char *level, int st, const char *
 	vaf.fmt = fmt;
 	vaf.va = &args;
 	/* level means KERN_ pacility level */
-	printk("%s[EXFAT](%s[%d:%d]): %pV\n", level,
+	printk("%sexFAT-fs (%s[%d:%d]): %pV\n", level,
 			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev), &vaf);
 	va_end(args);
 }
@@ -105,7 +105,7 @@ EXPORT_SYMBOL(__exfat_msg);
 
 void exfat_log_version(void)
 {
-	pr_info("[EXFAT] Filesystem version %s\n", EXFAT_VERSION);
+	pr_info("exFAT: file-system version %s\n", EXFAT_VERSION);
 }
 EXPORT_SYMBOL(exfat_log_version);
 

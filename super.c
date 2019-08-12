@@ -3750,26 +3750,26 @@ static int __init init_exfat_fs(void)
 
 	exfat_kset = kset_create_and_add("exfat", NULL, fs_kobj);
 	if (!exfat_kset) {
-		pr_err("[EXFAT] failed to create fs_kobj\n");
+		pr_err("exFAT: failed to create fs_kobj\n");
 		err = -ENOMEM;
 		goto error;
 	}
 
 	err = sysfs_create_group(&exfat_kset->kobj, &attr_group);
 	if (err) {
-		pr_err("[EXFAT] failed to create exfat version attributes\n");
+		pr_err("exFAT: failed to create exfat version attributes\n");
 		goto error;
 	}
 
 	err = exfat_init_inodecache();
 	if (err) {
-		pr_err("[EXFAT] failed to initialize inode cache\n");
+		pr_err("exFAT: failed to initialize inode cache\n");
 		goto error;
 	}
 
 	err = register_filesystem(&exfat_fs_type);
 	if (err) {
-		pr_err("[EXFAT] failed to register filesystem\n");
+		pr_err("exFAT: failed to register filesystem\n");
 		goto error;
 	}
 
@@ -3784,7 +3784,7 @@ error:
 	exfat_destroy_inodecache();
 	fsapi_shutdown();
 
-	pr_err("[EXFAT] failed to initialize FS driver(err:%d)\n", err);
+	pr_err("exFAT: failed to initialize FS driver(err:%d)\n", err);
 	return err;
 }
 

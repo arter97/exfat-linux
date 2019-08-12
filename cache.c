@@ -388,7 +388,7 @@ static cache_ent_t *__fcache_find(struct super_block *sb, u64 sec)
 			/*
 			 * patch 1.2.4 : for debugging
 			 */
-			WARN(!bp->bh, "[EXFAT] fcache has no bh. "
+			WARN(!bp->bh, "exFAT: fcache has no bh. "
 					  "It will make system panic.\n");
 
 			touch_buffer(bp->bh);
