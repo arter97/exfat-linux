@@ -118,8 +118,15 @@ s32 bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
 
 	blk_start_plug(&plug);
 	for (i = 0; i < num_secs; i++) {
-		if (i && !(i & (sects_per_page - 1)))
+		if (i && !(i & (sects_per_page - 1))) {
+#ifdef MODULE
+			/* TODO: fix this by using proper APIs */
+			blk_finish_plug(&plug);
+			blk_start_plug(&plug);
+#else
 			blk_flush_plug(current);
+#endif
+		}
 		sb_breadahead(sb, (sector_t)(secno + i));
 	}
 	blk_finish_plug(&plug);
