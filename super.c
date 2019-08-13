@@ -3816,7 +3816,9 @@ static void __exit exit_exfat_fs(void)
 module_init(init_exfat_fs);
 module_exit(exit_exfat_fs);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)
 MODULE_ALIAS_FS("exfat");
+#endif
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("FAT/exFAT filesystem support");
 MODULE_AUTHOR("Samsung Electronics Co., Ltd.");
