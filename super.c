@@ -52,6 +52,7 @@
 #include <linux/blkdev.h>
 #include <linux/swap.h> /* for mark_page_accessed() */
 #include <linux/vmalloc.h>
+#include <linux/mutex.h>
 #include <asm/current.h>
 #include <asm/unaligned.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
@@ -62,8 +63,13 @@
 #error EXFAT only supports linux kernel version 3.0 or higher
 #endif
 
-#include "exfat.h"
 #include "version.h"
+#include "config.h"
+
+#include "exfat.h"
+#include "core.h"
+
+#include "api.c"
 
 /* skip iterating emit_dots when dir is empty */
 #define ITER_POS_FILLED_DOTS	(2)

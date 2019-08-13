@@ -301,61 +301,6 @@ typedef struct __FS_INFO_T {
 	} dcache;
 } FS_INFO_T;
 
-/*======================================================================*/
-/*                                                                      */
-/*                     API FUNCTION DECLARATIONS                        */
-/*                  (CHANGE THIS PART IF REQUIRED)                      */
-/*                                                                      */
-/*======================================================================*/
-
-/*----------------------------------------------------------------------*/
-/*  External Function Declarations                                      */
-/*----------------------------------------------------------------------*/
-
-/* file system initialization & shutdown functions */
-s32 fsapi_init(void);
-s32 fsapi_shutdown(void);
-
-/* volume management functions */
-s32 fsapi_mount(struct super_block *sb);
-s32 fsapi_umount(struct super_block *sb);
-s32 fsapi_statfs(struct super_block *sb, VOL_INFO_T *info);
-s32 fsapi_sync_fs(struct super_block *sb, s32 do_sync);
-s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_sync);
-
-/* file management functions */
-s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid);
-s32 fsapi_create(struct inode *inode, u8 *path, u8 mode, FILE_ID_T *fid);
-s32 fsapi_read_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount);
-s32 fsapi_write_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount);
-s32 fsapi_remove(struct inode *inode, FILE_ID_T *fid); /* unlink and truncate */
-s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size);
-s32 fsapi_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
-		struct inode *new_parent_inode, struct dentry *new_dentry);
-s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid);
-s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info);
-s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync);
-s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest);
-s32 fsapi_reserve_clus(struct inode *inode);
-
-/* directory management functions */
-s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid);
-s32 fsapi_readdir(struct inode *inode, DIR_ENTRY_T *dir_entry);
-s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid);
-
-/* FAT & buf cache functions */
-s32 fsapi_cache_flush(struct super_block *sb, int do_sync);
-s32 fsapi_cache_release(struct super_block *sb);
-
-/* extra info functions */
-u32 fsapi_get_au_stat(struct super_block *sb, s32 mode);
-
-/* extent cache functions */
-void fsapi_invalidate_extent(struct inode *inode);
-
-/* bdev management */
-s32 fsapi_check_bdi_valid(struct super_block *sb);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

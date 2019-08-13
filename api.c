@@ -23,17 +23,6 @@
 /*                                                                      */
 /************************************************************************/
 
-#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/mutex.h>
-
-#include "version.h"
-#include "config.h"
-
-#include "exfat.h"
-#include "core.h"
-
 /*----------------------------------------------------------------------*/
 /*  Internal structures                                                 */
 /*----------------------------------------------------------------------*/
@@ -66,12 +55,12 @@ static DEFINE_MUTEX(_lock_core);
 /*  exFAT Filesystem Init & Exit Functions                              */
 /*----------------------------------------------------------------------*/
 
-s32 fsapi_init(void)
+static s32 fsapi_init(void)
 {
 	return fscore_init();
 }
 
-s32 fsapi_shutdown(void)
+static s32 fsapi_shutdown(void)
 {
 	return fscore_shutdown();
 }
@@ -81,7 +70,7 @@ s32 fsapi_shutdown(void)
 /*----------------------------------------------------------------------*/
 
 /* mount the file system volume */
-s32 fsapi_mount(struct super_block *sb)
+static s32 fsapi_mount(struct super_block *sb)
 {
 	s32 err;
 
@@ -102,10 +91,9 @@ out:
 
 	return err;
 }
-EXPORT_SYMBOL(fsapi_mount);
 
 /* unmount the file system volume */
-s32 fsapi_umount(struct super_block *sb)
+static s32 fsapi_umount(struct super_block *sb)
 {
 	s32 err;
 
@@ -122,10 +110,9 @@ s32 fsapi_umount(struct super_block *sb)
 
 	return err;
 }
-EXPORT_SYMBOL(fsapi_umount);
 
 /* get the information of a file system volume */
-s32 fsapi_statfs(struct super_block *sb, VOL_INFO_T *info)
+static s32 fsapi_statfs(struct super_block *sb, VOL_INFO_T *info)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -148,10 +135,9 @@ s32 fsapi_statfs(struct super_block *sb, VOL_INFO_T *info)
 
 	return 0;
 }
-EXPORT_SYMBOL(fsapi_statfs);
 
 /* synchronize a file system volume */
-s32 fsapi_sync_fs(struct super_block *sb, s32 do_sync)
+static s32 fsapi_sync_fs(struct super_block *sb, s32 do_sync)
 {
 	s32 err;
 
@@ -160,9 +146,8 @@ s32 fsapi_sync_fs(struct super_block *sb, s32 do_sync)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_sync_fs);
 
-s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_sync)
+static s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_sync)
 {
 	s32 err;
 
@@ -171,14 +156,13 @@ s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_sync)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_set_vol_flags);
 
 /*----------------------------------------------------------------------*/
 /*  File Operation Functions                                            */
 /*----------------------------------------------------------------------*/
 
 /* lookup */
-s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
+static s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -194,10 +178,9 @@ s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_lookup);
 
 /* create a file */
-s32 fsapi_create(struct inode *inode, u8 *path, u8 mode, FILE_ID_T *fid)
+static s32 fsapi_create(struct inode *inode, u8 *path, u8 mode, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -213,10 +196,9 @@ s32 fsapi_create(struct inode *inode, u8 *path, u8 mode, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_create);
 
 /* read the target string of symlink */
-s32 fsapi_read_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount)
+static s32 fsapi_read_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -229,10 +211,9 @@ s32 fsapi_read_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_read_link);
 
 /* write the target string of symlink */
-s32 fsapi_write_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount)
+static s32 fsapi_write_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -245,10 +226,9 @@ s32 fsapi_write_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 coun
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_write_link);
 
 /* resize the file length */
-s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size)
+static s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -260,10 +240,9 @@ s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_truncate);
 
 /* rename or move a old file into a new file */
-s32 fsapi_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
+static s32 fsapi_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
 		struct inode *new_parent_inode, struct dentry *new_dentry)
 {
 	s32 err;
@@ -277,10 +256,9 @@ s32 fsapi_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_rename);
 
 /* remove a file */
-s32 fsapi_remove(struct inode *inode, FILE_ID_T *fid)
+static s32 fsapi_remove(struct inode *inode, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -293,10 +271,9 @@ s32 fsapi_remove(struct inode *inode, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_remove);
 
 /* get the information of a given file */
-s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info)
+static s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -308,10 +285,9 @@ s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_read_inode);
 
 /* set the information of a given file */
-s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync)
+static s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -324,10 +300,9 @@ s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_write_inode);
 
 /* return the cluster number in the given cluster offset */
-s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest)
+static s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -343,29 +318,13 @@ s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_map_clus);
-
-/* reserve a cluster */
-s32 fsapi_reserve_clus(struct inode *inode)
-{
-	s32 err;
-	struct super_block *sb = inode->i_sb;
-
-	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	TMSG("%s entered (inode:%p)\n", __func__, inode);
-	err = fscore_reserve_clus(inode);
-	TMSG("%s exited (err:%d)\n", __func__, err);
-	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
-	return err;
-}
-EXPORT_SYMBOL(fsapi_reserve_clus);
 
 /*----------------------------------------------------------------------*/
 /*  Directory Operation Functions                                       */
 /*----------------------------------------------------------------------*/
 
 /* create(make) a directory */
-s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
+static s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -381,10 +340,9 @@ s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_mkdir);
 
 /* read a directory entry from the opened directory */
-s32 fsapi_readdir(struct inode *inode, DIR_ENTRY_T *dir_entry)
+static s32 fsapi_readdir(struct inode *inode, DIR_ENTRY_T *dir_entry)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -397,10 +355,9 @@ s32 fsapi_readdir(struct inode *inode, DIR_ENTRY_T *dir_entry)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_readdir);
 
 /* remove a directory */
-s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid)
+static s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -413,12 +370,11 @@ s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_rmdir);
 
 /* unlink a file.
  * that is, remove an entry from a directory. BUT don't truncate
  */
-s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
+static s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
 {
 	s32 err;
 	struct super_block *sb = inode->i_sb;
@@ -430,10 +386,9 @@ s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-EXPORT_SYMBOL(fsapi_unlink);
 
 /* reflect the internal dirty flags to VFS bh dirty flags */
-s32 fsapi_cache_flush(struct super_block *sb, int do_sync)
+static s32 fsapi_cache_flush(struct super_block *sb, int do_sync)
 {
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
 	fcache_flush(sb, do_sync);
@@ -441,32 +396,15 @@ s32 fsapi_cache_flush(struct super_block *sb, int do_sync)
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return 0;
 }
-EXPORT_SYMBOL(fsapi_cache_flush);
 
-/* release FAT & buf cache */
-s32 fsapi_cache_release(struct super_block *sb)
-{
-#ifdef CONFIG_EXFAT_DEBUG
-	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-
-	fcache_release_all(sb);
-	dcache_release_all(sb);
-
-	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
-#endif /* CONFIG_EXFAT_DEBUG */
-	return 0;
-}
-EXPORT_SYMBOL(fsapi_cache_release);
-
-u32 fsapi_get_au_stat(struct super_block *sb, s32 mode)
+static u32 fsapi_get_au_stat(struct super_block *sb, s32 mode)
 {
 	/* volume lock is not required */
 	return fscore_get_au_stat(sb, mode);
 }
-EXPORT_SYMBOL(fsapi_get_au_stat);
 
 /* clear extent cache */
-void fsapi_invalidate_extent(struct inode *inode)
+static void fsapi_invalidate_extent(struct inode *inode)
 {
 	/* Volume lock is not required,
 	 * because it is only called by evict_inode.
@@ -475,13 +413,11 @@ void fsapi_invalidate_extent(struct inode *inode)
 	 */
 	extent_cache_inval_inode(inode);
 }
-EXPORT_SYMBOL(fsapi_invalidate_extent);
 
 /* check device is ejected */
-s32 fsapi_check_bdi_valid(struct super_block *sb)
+static s32 fsapi_check_bdi_valid(struct super_block *sb)
 {
 	return fscore_check_bdi_valid(sb);
 }
-EXPORT_SYMBOL(fsapi_check_bdi_valid);
 
 /* end of exfat_api.c */
