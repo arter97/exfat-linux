@@ -196,12 +196,23 @@ static int exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	return __exfat_rename(old_dir, old_dentry, new_dir, new_dentry);
 }
 
+// setattr_prepare() was backported to several LTS kernels
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 39) && \
+    LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
+#define SETATTR_PREPARE_AVAILABLE
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 37) && \
+      LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+#define SETATTR_PREPARE_AVAILABLE
+#endif
+
+#ifndef SETATTR_PREPARE_AVAILABLE
 static int setattr_prepare(struct dentry *dentry, struct iattr *attr)
 {
 	struct inode *inode = dentry->d_inode;
 
 	return inode_change_ok(inode, attr);
 }
+#endif
 #endif
 
 
