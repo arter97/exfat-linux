@@ -1612,7 +1612,6 @@ static struct dentry *__exfat_lookup(struct inode *dir, struct dentry *dentry)
 		 * In such case, we reuse an alias instead of new dentry
 		 */
 		if (d_unhashed(alias)) {
-			BUG_ON(alias->d_name.hash_len != dentry->d_name.hash_len);
 			exfat_msg(sb, KERN_INFO, "rehashed a dentry(%p) "
 				"in read lookup", alias);
 			d_drop(dentry);
