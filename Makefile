@@ -4,6 +4,7 @@
 
 ifneq ($(KERNELRELEASE),)
 # Called from inline kernel build
+# DKMS_DEFINE
 obj-$(CONFIG_EXFAT_FS) += exfat.o
 
 exfat-objs	:= super.o core.o core_exfat.o api.o blkdev.o fatent.o cache.o \
