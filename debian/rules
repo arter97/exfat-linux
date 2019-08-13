@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+version := $(shell dpkg-parsechangelog | grep '^Version:' | cut -d' ' -f2)
+TMPDIR := tmp.$(shell uuidgen)
+
+%:
+	dh $@ --with dkms
+
+override_dh_install:
+	mkdir $(TMPDIR)
+	cp Makefile $(TMPDIR)
+	sed -i -e /DKMS_DEFINE/c\CONFIG_EXFAT_FS=m $(TMPDIR)/Makefile
+	dh_install *.c *.h Kconfig LICENSE $(TMPDIR)/Makefile usr/src/exfat-$(version)/
+	rm -r $(TMPDIR)
+
+override_dh_dkms:
+	dh_dkms -V $(version)
+
+override_dh_auto_configure:
+override_dh_auto_build:
+override_dh_auto_test:
+override_dh_auto_install:
+override_dh_auto_clean:

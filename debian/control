@@ -1,0 +1,11 @@
+Source: exfat-dkms
+Section: misc
+Priority: optional
+Maintainer: Park Ju Hyung <qkrwngud825@gmail.com>
+Build-Depends: debhelper (>= 9), dkms
+
+Package: exfat-dkms
+Architecture: all
+Depends: ${misc:Depends}, dkms
+Conflicts: exfat-fuse
+Description: exFAT filesystem driver for Linux kernel
