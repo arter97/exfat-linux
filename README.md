@@ -151,4 +151,51 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 
 [exfat-fuse]: https://github.com/relan/exfat
 
+## Mount options
+
+* uid
+* gid
+* umask
+* dmask
+* fmask
+* allow_utime
+* codepage
+* iocharset
+* utf8
+* tz
+
+  * Please refer to the [vfat](https://github.com/torvalds/linux/blob/master/Documentation/filesystems/vfat.txt)'s documentation.
+
+* namecase
+
+  * Passing `namecase=1` as a mount option will make exFAT operate in a case-sensitive mode.
+
+  * Default is insensitive mode.
+
+* symlink
+
+  * Allow a symlink to be created under exFAT.
+
+* errors=continue
+
+  * Keep going on a filesystem error.
+
+* errors=panic
+
+  * Panic and halt the machine if an error occurs.
+
+* errors=remount-ro
+
+  * Remount the filesystem read-only on an error.
+
+* discard
+
+  * Enable the use of discard/TRIM commands to ensure flash storage doesn't run out of free blocks. This option may introduce latency penalty on file removal operations.
+
+* delayed_meta
+
+  * Delay flushing metadata, hence improving performance.
+
+  * This is enabled by default, please pass `nodelayed_meta` to disable it.
+
 ## Enjoy!
