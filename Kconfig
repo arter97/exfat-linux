@@ -36,10 +36,12 @@ config EXFAT_VIRTUAL_XATTR
 
 config EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
 	string "Default string for SELinux label"
-	default "u:object_r:sdcard_external:s0"
+	default "u:object_r:exfat:s0"
 	depends on EXFAT_VIRTUAL_XATTR
 	help
 	  Set this to the default string for SELinux label.
+	  Support for "u:object_r:exfat:s0" was added in Android Pie,
+	  if you're running Oreo or lower, use "u:object_r:vfat:s0" instead.
 
 config EXFAT_DEBUG
 	bool "enable debug features"
