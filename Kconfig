@@ -1,5 +1,6 @@
 config EXFAT_FS
 	tristate "exFAT fs support"
+	depends on BLOCK
 	select NLS
 	select NLS_UTF8
 	select NLS_CODEPAGE_437
