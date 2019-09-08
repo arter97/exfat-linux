@@ -1470,7 +1470,7 @@ s32 mount_exfat(struct super_block *sb, pbr_t *p_pbr)
 
 	fsi->vol_flag = (u32) le16_to_cpu(p_bpb->bsx.vol_flags);
 	fsi->clu_srch_ptr = CLUS_BASE;
-	fsi->used_clusters = (u32) ~0;
+	fsi->used_clusters = UINT_MAX;
 
 	fsi->fs_func = &exfat_fs_func;
 

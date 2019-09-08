@@ -3210,7 +3210,7 @@ static int exfat_statfs(struct dentry *dentry, struct kstatfs *buf)
 	VOL_INFO_T info;
 
 	/* exfat_statfs will try to get a volume lock if needed */
-	if (fsi->used_clusters == (u32) ~0) {
+	if (fsi->used_clusters == UINT_MAX) {
 		s32 err;
 
 		mutex_lock(&(EXFAT_SB(sb)->s_vlock));
@@ -3508,7 +3508,7 @@ static int parse_options(struct super_block *sb, char *options, int silent,
 	opts->fs_uid = current_uid();
 	opts->fs_gid = current_gid();
 	opts->fs_fmask = opts->fs_dmask = current->fs->umask;
-	opts->allow_utime = (unsigned short) -1;
+	opts->allow_utime = U16_MAX;
 	opts->codepage = exfat_default_codepage;
 	opts->iocharset = exfat_default_iocharset;
 	opts->casesensitive = 0;
@@ -3609,7 +3609,7 @@ static int parse_options(struct super_block *sb, char *options, int silent,
 	}
 
 out:
-	if (opts->allow_utime == (unsigned short) -1)
+	if (opts->allow_utime == U16_MAX)
 		opts->allow_utime = ~opts->fs_dmask & (S_IWGRP | S_IWOTH);
 
 	if (opts->utf8 && strcmp(opts->iocharset,  exfat_iocharset_with_utf8)) {

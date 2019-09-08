@@ -1543,7 +1543,7 @@ free_bh:
 		goto free_upcase;
 	}
 
-	if (fsi->used_clusters == (u32) ~0) {
+	if (fsi->used_clusters == UINT_MAX) {
 		ret = fsi->fs_func->count_used_clusters(sb, &fsi->used_clusters);
 		if (ret) {
 			exfat_log_msg(sb, KERN_ERR, "failed to scan clusters");
@@ -1595,7 +1595,7 @@ s32 exfat_fscore_statfs(struct super_block *sb, VOL_INFO_T *info)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
-	if (fsi->used_clusters == (u32) ~0) {
+	if (fsi->used_clusters == UINT_MAX) {
 		if (fsi->fs_func->count_used_clusters(sb, &fsi->used_clusters))
 			return -EIO;
 	}
