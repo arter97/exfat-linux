@@ -66,4 +66,7 @@ config EXFAT_DBG_WARNON
 
 endif # if EXFAT_DEBUG
 
+config EXFAT_UEVENT
+	bool "enable uevent"
+
 endif # if EXFAT_FS

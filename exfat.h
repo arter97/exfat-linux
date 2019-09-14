@@ -281,6 +281,18 @@ static inline void setup_exfat_xattr_handler(struct super_block *sb) {};
 #endif
 
 /* exfat/misc.c */
+#ifdef CONFIG_EXFAT_UEVENT
+extern int exfat_uevent_init(struct kset *exfat_kset);
+extern void exfat_uevent_uninit(void);
+extern void exfat_uevent_ro_remount(struct super_block *sb);
+#else
+static inline int exfat_uevent_init(struct kset *exfat_kset)
+{
+	return 0;
+}
+static inline void exfat_uevent_uninit(void) {};
+static inline void exfat_uevent_ro_remount(struct super_block *sb) {};
+#endif
 extern void
 __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 	__printf(3, 4) __cold;

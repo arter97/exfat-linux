@@ -3778,6 +3778,10 @@ static int __init init_exfat_fs(void)
 		goto error;
 	}
 
+	err = exfat_uevent_init(exfat_kset);
+	if (err)
+		goto error;
+
 	err = exfat_init_inodecache();
 	if (err) {
 		pr_err("exFAT: failed to initialize inode cache\n");
@@ -3792,6 +3796,8 @@ static int __init init_exfat_fs(void)
 
 	return 0;
 error:
+	exfat_uevent_uninit();
+
 	if (exfat_kset) {
 		sysfs_remove_group(&exfat_kset->kobj, &attr_group);
 		kset_unregister(exfat_kset);
@@ -3807,6 +3813,8 @@ error:
 
 static void __exit exit_exfat_fs(void)
 {
+	exfat_uevent_uninit();
+
 	if (exfat_kset) {
 		sysfs_remove_group(&exfat_kset->kobj, &attr_group);
 		kset_unregister(exfat_kset);

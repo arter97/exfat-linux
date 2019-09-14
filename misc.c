@@ -42,6 +42,46 @@
 #include "exfat.h"
 #include "version.h"
 
+#ifdef CONFIG_EXFAT_UEVENT
+static struct kobject exfat_uevent_kobj;
+
+int exfat_uevent_init(struct kset *exfat_kset)
+{
+	int err;
+	struct kobj_type *ktype = get_ktype(&exfat_kset->kobj);
+
+	exfat_uevent_kobj.kset = exfat_kset;
+	err = kobject_init_and_add(&exfat_uevent_kobj, ktype, NULL, "uevent");
+	if (err)
+		pr_err("[EXFAT] Unable to create exfat uevent kobj\n");
+
+	return err;
+}
+
+void exfat_uevent_uninit(void)
+{
+	kobject_del(&exfat_uevent_kobj);
+	memset(&exfat_uevent_kobj, 0, sizeof(struct kobject));
+}
+
+void exfat_uevent_ro_remount(struct super_block *sb)
+{
+	struct block_device *bdev = sb->s_bdev;
+	dev_t bd_dev = bdev ? bdev->bd_dev : 0;
+
+	char major[16], minor[16];
+	char *envp[] = { major, minor, NULL };
+
+	snprintf(major, sizeof(major), "MAJOR=%d", MAJOR(bd_dev));
+	snprintf(minor, sizeof(minor), "MINOR=%d", MINOR(bd_dev));
+
+	kobject_uevent_env(&exfat_uevent_kobj, KOBJ_CHANGE, envp);
+
+	ST_LOG("[EXFAT](%s[%d:%d]): Uevent triggered\n",
+			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
+}
+#endif
+
 /*
  * exfat_fs_error reports a file system problem that might indicate fa data
  * corruption/inconsistency. Depending on 'errors' mount option the
@@ -78,6 +118,7 @@ void __exfat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 #endif
 		pr_err("exFAT-fs (%s[%d:%d]): file-system has been set to "
 			"read-only\n", sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
+		exfat_uevent_ro_remount(sb);
 	}
 }
 EXPORT_SYMBOL(__exfat_fs_error);

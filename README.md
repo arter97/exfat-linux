@@ -115,7 +115,7 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 
 | Implementation   | Base   | Read         | Write        |
 | ---------------  | ------ | ------------ | ------------ |
-| **exfat-linux**  | 2.1.10 |    7042 MB/s |    2173 MB/s |
+| **exfat-linux**  | 2.2.0  |    7042 MB/s |    2173 MB/s |
 | [exfat-nofuse]   | 1.2.9  |    6849 MB/s |    1961 MB/s |
 | [exfat-fuse]     | N/A    |    3097 MB/s |    1710 MB/s |
 | ext4             | N/A    |    7352 MB/s |    3333 MB/s |
@@ -124,7 +124,7 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 
 | Implementation   | Base   | Read         | Write        |
 | ---------------  | ------ | ------------ | ------------ |
-| **exfat-linux**  | 2.1.10 |     760 MB/s |    2222 MB/s |
+| **exfat-linux**  | 2.2.0  |     760 MB/s |    2222 MB/s |
 | [exfat-nofuse]   | 1.2.9  |     760 MB/s |    2160 MB/s |
 | [exfat-fuse]     | N/A    |     1.7 MB/s |     1.6 MB/s |
 | ext4             | N/A    |     747 MB/s |    2816 MB/s |
@@ -135,7 +135,7 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 
 | Implementation   | Base   | Read         | Write        |
 | ---------------  | ------ | ------------ | ------------ |
-| **exfat-linux**  | 2.1.10 |    1283 MB/s |    1832 MB/s |
+| **exfat-linux**  | 2.2.0  |    1283 MB/s |    1832 MB/s |
 | [exfat-nofuse]   | 1.2.9  |    1285 MB/s |    1678 MB/s |
 | [exfat-fuse]     | N/A    |     751 MB/s |    1464 MB/s |
 | ext4             | N/A    |    1283 MB/s |    3356 MB/s |
@@ -144,7 +144,7 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 
 | Implementation   | Base   | Read         | Write        |
 | ---------------  | ------ | ------------ | ------------ |
-| **exfat-linux**  | 2.1.10 |      26 MB/s |    1885 MB/s |
+| **exfat-linux**  | 2.2.0  |      26 MB/s |    1885 MB/s |
 | [exfat-nofuse]   | 1.2.9  |      24 MB/s |    1827 MB/s |
 | [exfat-fuse]     | N/A    |     1.6 MB/s |     1.6 MB/s |
 | ext4             | N/A    |      29 MB/s |    2821 MB/s |
