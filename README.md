@@ -45,7 +45,7 @@ Ubuntu will handle upgrades automatically as well.
 
 2. Install the module
 
-   `sudo apt install exfat-linux`
+   `sudo apt install exfat-dkms`
 
 This will use DKMS(Dynamic Kernel Module Support) and automatically build exFAT module for your current Ubuntu installation.
 
