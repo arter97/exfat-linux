@@ -1,8 +1,9 @@
 Source: exfat-dkms
 Section: misc
 Priority: optional
+Standards-Version: 4.3.0
 Maintainer: Park Ju Hyung <qkrwngud825@gmail.com>
-Build-Depends: debhelper (>= 9), dkms
+Build-Depends: debhelper (>= 10), dkms
 
 Package: exfat-dkms
 Architecture: all
