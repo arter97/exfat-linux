@@ -1,4 +1,4 @@
-exfat-dkms (5.8-1arter97) UNRELEASED; urgency=medium
+exfat-dkms (5.8~1arter97) UNRELEASED; urgency=medium
 
   * Rebased to Linux mainline's drivers
   * Supports for kernels lower than v4.9 dropped

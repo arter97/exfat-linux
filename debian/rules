@@ -2,7 +2,7 @@
 
 include /usr/share/dpkg/pkg-info.mk
 
-version := $(shell dpkg-parsechangelog | grep '^Version:' | cut -d' ' -f2)
+version := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -e 's/~[^~]*$$//')
 targetdir := debian/tmp/usr/src/exfat-$(version)
 
 %:
