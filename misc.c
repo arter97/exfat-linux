@@ -266,17 +266,6 @@ TIMESTAMP_T *tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tp)
 	return tp;
 }
 
-u8 calc_chksum_1byte(void *data, s32 len, u8 chksum)
-{
-	s32 i;
-	u8 *c = (u8 *) data;
-
-	for (i = 0; i < len; i++, c++)
-		chksum = (((chksum & 1) << 7) | ((chksum & 0xFE) >> 1)) + *c;
-
-	return chksum;
-}
-
 u16 calc_chksum_2byte(void *data, s32 len, u16 chksum, s32 type)
 {
 	s32 i;

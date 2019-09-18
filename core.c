@@ -2891,28 +2891,6 @@ s32 fscore_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest)
 	return 0;
 }
 
-/* allocate reserved cluster */
-s32 fscore_reserve_clus(struct inode *inode)
-{
-	struct super_block *sb = inode->i_sb;
-	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-
-	if ((fsi->used_clusters + fsi->reserved_clusters) >= (fsi->num_clusters - 2))
-		return -ENOSPC;
-
-	if (bdev_check_bdi_valid(sb))
-		return -EIO;
-
-	fsi->reserved_clusters++;
-
-	/* inode->i_blocks update */
-	inode->i_blocks += 1 << (fsi->cluster_size_bits - sb->s_blocksize_bits);
-
-	exfat_debug_check_clusters(inode);
-
-	return 0;
-}
-
 /* remove an entry, BUT don't truncate */
 s32 fscore_unlink(struct inode *inode, FILE_ID_T *fid)
 {

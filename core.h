@@ -68,7 +68,6 @@ s32 fscore_remove(struct inode *inode, FILE_ID_T *fid);
 s32 fscore_read_inode(struct inode *inode, DIR_ENTRY_T *info);
 s32 fscore_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync);
 s32 fscore_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int dest);
-s32 fscore_reserve_clus(struct inode *inode);
 s32 fscore_unlink(struct inode *inode, FILE_ID_T *fid);
 
 /* directory management functions */
@@ -119,7 +118,6 @@ ENTRY_SET_CACHE_T *get_dentry_set_in_dir(struct super_block *sb,
 void release_dentry_set(ENTRY_SET_CACHE_T *es);
 s32 update_dir_chksum(struct super_block *sb, CHAIN_T *p_dir, s32 entry);
 s32 update_dir_chksum_with_entry_set(struct super_block *sb, ENTRY_SET_CACHE_T *es);
-bool is_dir_empty(struct super_block *sb, CHAIN_T *p_dir);
 s32  mount_exfat(struct super_block *sb, pbr_t *p_pbr);
 
 /* blkdev.c */
@@ -134,12 +132,9 @@ s32 bdev_sync_all(struct super_block *sb);
 /* blkdev.c : sector read/write functions */
 s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read);
 s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync);
-s32 read_msect(struct super_block *sb, u64 sec, struct buffer_head **bh, s64 num_secs, s32 read);
-s32 write_msect(struct super_block *sb, u64 sec, struct buffer_head *bh, s64 num_secs, s32 sync);
 s32 write_msect_zero(struct super_block *sb, u64 sec, u64 num_secs);
 
 /* misc.c */
-u8  calc_chksum_1byte(void *data, s32 len, u8 chksum);
 u16 calc_chksum_2byte(void *data, s32 len, u16 chksum, s32 type);
 
 /* extent.c */

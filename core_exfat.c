@@ -1170,18 +1170,6 @@ static u32 test_alloc_bitmap(struct super_block *sb, u32 clu)
 	return CLUS_EOF;
 }
 
-void sync_alloc_bmp(struct super_block *sb)
-{
-	s32 i;
-	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-
-	if (fsi->vol_amap == NULL)
-		return;
-
-	for (i = 0; i < fsi->map_sectors; i++)
-		sync_dirty_buffer(fsi->vol_amap[i]);
-}
-
 static s32 exfat_chain_cont_cluster(struct super_block *sb, u32 chain, u32 len)
 {
 	if (!len)

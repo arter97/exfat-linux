@@ -245,47 +245,6 @@ s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync
 	return 0;
 }
 
-s32 read_msect(struct super_block *sb, u64 sec, struct buffer_head **bh, u64 num_secs, s32 read)
-{
-	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-
-	BUG_ON(!bh);
-	if (((sec+num_secs) > fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		exfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
-						__func__, sec, num_secs);
-		return -EIO;
-	}
-
-	if (bdev_mread(sb, sec, bh, num_secs, read)) {
-		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
-						__func__, sec, num_secs);
-		return -EIO;
-	}
-
-	return 0;
-}
-
-s32 write_msect(struct super_block *sb, u64 sec, struct buffer_head *bh, u64 num_secs, s32 sync)
-{
-	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-
-	BUG_ON(!bh);
-	if (((sec+num_secs) > fsi->num_sectors) && (fsi->num_sectors > 0)) {
-		exfat_fs_error_ratelimit(sb, "%s: out of range(sect:%llu len:%llu)",
-						__func__, sec, num_secs);
-		return -EIO;
-	}
-
-
-	if (bdev_mwrite(sb, sec, bh, num_secs, sync)) {
-		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu len:%llu)",
-						__func__, sec, num_secs);
-		return -EIO;
-	}
-
-	return 0;
-}
-
 static inline void __blkdev_write_bhs(struct buffer_head **bhs, s32 nr_bhs)
 {
 	s32 i;

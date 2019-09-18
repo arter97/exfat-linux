@@ -11,13 +11,6 @@
 #include "exfat.h"
 #include "core.h"
 
-static u16 bad_dos_chars[] = {
-	/* + , ; = [ ] */
-	0x002B, 0x002C, 0x003B, 0x003D, 0x005B, 0x005D,
-	0xFF0B, 0xFF0C, 0xFF1B, 0xFF1D, 0xFF3B, 0xFF3D,
-	0
-};
-
 /*
  * Allow full-width illegal characters :
  * "MS windows 7" supports full-width-invalid-name-characters.
@@ -63,11 +56,6 @@ u16 *nls_wstrchr(u16 *str, u16 wchar)
 	return 0;
 }
 
-s32 nls_cmp_sfn(struct super_block *sb, u8 *a, u8 *b)
-{
-	return strncmp((void *)a, (void *)b, DOS_NAME_LENGTH);
-}
-
 s32 nls_cmp_uniname(struct super_block *sb, u16 *a, u16 *b)
 {
 	s32 i;
@@ -83,109 +71,6 @@ s32 nls_cmp_uniname(struct super_block *sb, u16 *a, u16 *b)
 
 #define CASE_LOWER_BASE (0x08)	/* base is lower case */
 #define CASE_LOWER_EXT  (0x10)	/* extension is lower case */
-
-s32 nls_uni16s_to_sfn(struct super_block *sb, UNI_NAME_T *p_uniname, DOS_NAME_T *p_dosname, s32 *p_lossy)
-{
-	s32 i, j, len, lossy = NLS_NAME_NO_LOSSY;
-	u8 buf[MAX_CHARSET_SIZE];
-	u8 lower = 0, upper = 0;
-	u8 *dosname = p_dosname->name;
-	u16 *uniname = p_uniname->name;
-	u16 *p, *last_period;
-	struct nls_table *nls = EXFAT_SB(sb)->nls_disk;
-
-	/* DOSNAME is filled with space */
-	for (i = 0; i < DOS_NAME_LENGTH; i++)
-		*(dosname+i) = ' ';
-
-	/* DOT and DOTDOT are handled by VFS layer */
-
-	/* search for the last embedded period */
-	last_period = NULL;
-	for (p = uniname; *p; p++) {
-		if (*p == (u16) '.')
-			last_period = p;
-	}
-
-	i = 0;
-	while (i < DOS_NAME_LENGTH) {
-		if (i == 8) {
-			if (last_period == NULL)
-				break;
-
-			if (uniname <= last_period) {
-				if (uniname < last_period)
-					lossy |= NLS_NAME_OVERLEN;
-				uniname = last_period + 1;
-			}
-		}
-
-		if (*uniname == (u16) '\0') {
-			break;
-		} else if (*uniname == (u16) ' ') {
-			lossy |= NLS_NAME_LOSSY;
-		} else if (*uniname == (u16) '.') {
-			if (uniname < last_period)
-				lossy |= NLS_NAME_LOSSY;
-			else
-				i = 8;
-		} else if (nls_wstrchr(bad_dos_chars, *uniname)) {
-			lossy |= NLS_NAME_LOSSY;
-			*(dosname+i) = '_';
-			i++;
-		} else {
-			len = convert_uni_to_ch(nls, *uniname, buf, &lossy);
-
-			if (len > 1) {
-				if ((i >= 8) && ((i+len) > DOS_NAME_LENGTH))
-					break;
-
-				if ((i <  8) && ((i+len) > 8)) {
-					i = 8;
-					continue;
-				}
-
-				lower = 0xFF;
-
-				for (j = 0; j < len; j++, i++)
-					*(dosname+i) = *(buf+j);
-			} else { /* len == 1 */
-				if ((*buf >= 'a') && (*buf <= 'z')) {
-					*(dosname+i) = *buf - ('a' - 'A');
-
-					lower |= (i < 8) ?
-						CASE_LOWER_BASE :
-						CASE_LOWER_EXT;
-				} else if ((*buf >= 'A') && (*buf <= 'Z')) {
-					*(dosname+i) = *buf;
-
-					upper |= (i < 8) ?
-						CASE_LOWER_BASE :
-						CASE_LOWER_EXT;
-				} else {
-					*(dosname+i) = *buf;
-				}
-				i++;
-			}
-		}
-
-		uniname++;
-	}
-
-	if (*dosname == 0xE5)
-		*dosname = 0x05;
-	if (*uniname != 0x0)
-		lossy |= NLS_NAME_OVERLEN;
-
-	if (upper & lower)
-		p_dosname->name_case = 0xFF;
-	else
-		p_dosname->name_case = lower;
-
-	if (p_lossy)
-		*p_lossy = lossy;
-	return i;
-}
 
 s32 nls_sfn_to_uni16s(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T *p_uniname)
 {
