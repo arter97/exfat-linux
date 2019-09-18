@@ -27,6 +27,8 @@
 /*                                                                      */
 /************************************************************************/
 
+#include "config.h"
+
 #ifdef CONFIG_EXFAT_VIRTUAL_XATTR
 
 #include <linux/file.h>

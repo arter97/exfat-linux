@@ -44,6 +44,10 @@
 #define CONFIG_EXFAT_FAT_MIRRORING /* Write FAT 1, FAT 2 simultaneously */
 #endif
 
+#ifndef CONFIG_EXFAT_VIRTUAL_XATTR
+#define CONFIG_EXFAT_VIRTUAL_XATTR
+#endif
+
 #endif /* _EXFAT_CONFIG_H */
 
 /* end of config.h */
