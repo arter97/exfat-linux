@@ -1,37 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  fatent.c: exFAT FAT entry manager
  */
-
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : fatent.c                                                  */
-/*  PURPOSE : exFAT FAT entry manager                                   */
-/*                                                                      */
-/*----------------------------------------------------------------------*/
-/*  NOTES                                                               */
-/*                                                                      */
-/*                                                                      */
-/************************************************************************/
 
 #include <asm/unaligned.h>
 
 #include "exfat.h"
 #include "core.h"
 
-/*----------------------------------------------------------------------*/
-/*  Global Variable Definitions                                         */
-/*----------------------------------------------------------------------*/
 /* All buffer structures are protected w/ fsi->v_sem */
 
-/*----------------------------------------------------------------------*/
-/*  Static functions                                                    */
-/*----------------------------------------------------------------------*/
-
-/*======================================================================*/
-/*  FAT Read/Write Functions                                            */
-/*======================================================================*/
 /* in : sb, loc
  * out: content
  * returns 0 on success, -1 on error
@@ -166,5 +146,3 @@ s32 fat_ent_get_safe(struct super_block *sb, u32 loc, u32 *content)
 
 	return 0;
 }
-
-/* end of fatent.c */

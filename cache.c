@@ -1,24 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  cache.c: exFAT Cache Manager
  */
-
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : cache.c                                                   */
-/*  PURPOSE : exFAT Cache Manager                                       */
-/*            (FAT Cache & Buffer Cache)                                */
-/*                                                                      */
-/*----------------------------------------------------------------------*/
-/*  NOTES                                                               */
-/*                                                                      */
-/*                                                                      */
-/************************************************************************/
 
 #include <linux/swap.h> /* for mark_page_accessed() */
 #include <asm/unaligned.h>
-
 #include "exfat.h"
 #include "core.h"
 
@@ -26,21 +14,10 @@
 #define DEBUG_HASH_PREV	(0xAAAA5555)
 #define DEBUG_HASH_NEXT	(0x5555AAAA)
 
-/*----------------------------------------------------------------------*/
-/*  Global Variable Definitions                                         */
-/*----------------------------------------------------------------------*/
-/* All buffer structures are protected w/ fsi->v_sem */
-
-/*----------------------------------------------------------------------*/
-/*  Local Variable Definitions                                          */
-/*----------------------------------------------------------------------*/
 #define LOCKBIT         (0x01)
 #define DIRTYBIT        (0x02)
 #define KEEPBIT         (0x04)
 
-/*----------------------------------------------------------------------*/
-/*  Cache handling function declarations                                */
-/*----------------------------------------------------------------------*/
 static cache_ent_t *__fcache_find(struct super_block *sb, u64 sec);
 static cache_ent_t *__fcache_get(struct super_block *sb);
 static void __fcache_insert_hash(struct super_block *sb, cache_ent_t *bp);
@@ -51,9 +28,6 @@ static cache_ent_t *__dcache_get(struct super_block *sb);
 static void __dcache_insert_hash(struct super_block *sb, cache_ent_t *bp);
 static void __dcache_remove_hash(cache_ent_t *bp);
 
-/*----------------------------------------------------------------------*/
-/*  Static functions                                                    */
-/*----------------------------------------------------------------------*/
 static void push_to_mru(cache_ent_t *bp, cache_ent_t *list)
 {
 	bp->next = list->next;
@@ -110,7 +84,8 @@ static inline void __remove_from_hash(cache_ent_t *bp)
 #endif
 }
 
-/* Do FAT mirroring (don't sync)
+/*
+ * Do FAT mirroring (don't sync)
  * sec: sector No. in FAT1
  * bh:  bh of sec.
  */
@@ -132,7 +107,7 @@ static inline s32 __fat_copy(struct super_block *sb, u64 sec, struct buffer_head
 	/* DO NOTHING */
 #endif
 	return 0;
-} /* end of __fat_copy */
+}
 
 /*
  * returns 1, if bp is flushed
@@ -242,9 +217,6 @@ s32 fcache_modify(struct super_block *sb, u64 sec)
 	return 0;
 }
 
-/*======================================================================*/
-/*  Cache Initialization Functions                                      */
-/*======================================================================*/
 s32 meta_cache_init(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
@@ -307,9 +279,6 @@ s32 meta_cache_shutdown(struct super_block *sb)
 	return 0;
 }
 
-/*======================================================================*/
-/*  FAT Read/Write Functions                                            */
-/*======================================================================*/
 s32 fcache_release_all(struct super_block *sb)
 {
 	s32 ret = 0;
@@ -443,9 +412,6 @@ static void __fcache_remove_hash(cache_ent_t *bp)
 	__remove_from_hash(bp);
 }
 
-/*======================================================================*/
-/*  Buffer Read/Write Functions                                         */
-/*======================================================================*/
 /* Read-ahead a cluster */
 s32 dcache_readahead(struct super_block *sb, u64 sec)
 {
@@ -817,6 +783,3 @@ static void __dcache_remove_hash(cache_ent_t *bp)
 	WARN_ON(bp->flag & DIRTYBIT);
 	__remove_from_hash(bp);
 }
-
-
-/* end of cache.c */

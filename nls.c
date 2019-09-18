@@ -1,32 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  nls.c: exFAT NLS manager
  */
 
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : nls.c                                                     */
-/*  PURPOSE : exFAT NLS Manager                                         */
-/*                                                                      */
-/*----------------------------------------------------------------------*/
-/*  NOTES                                                               */
-/*                                                                      */
-/*                                                                      */
-/************************************************************************/
 #include <linux/string.h>
 #include <linux/nls.h>
 
 #include "exfat.h"
 #include "core.h"
-
-/*----------------------------------------------------------------------*/
-/*  Global Variable Definitions                                         */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Local Variable Definitions                                          */
-/*----------------------------------------------------------------------*/
 
 static u16 bad_dos_chars[] = {
 	/* + , ; = [ ] */
@@ -55,9 +38,6 @@ static u16 bad_uni_chars[] = {
 	0
 };
 
-/*----------------------------------------------------------------------*/
-/*  Local Function Declarations                                         */
-/*----------------------------------------------------------------------*/
 static s32  convert_uni_to_ch(struct nls_table *nls, u16 uni, u8 *ch, s32 *lossy);
 static s32  convert_ch_to_uni(struct nls_table *nls, u8 *ch, u16 *uni, s32 *lossy);
 
@@ -72,9 +52,7 @@ static u16 nls_upper(struct super_block *sb, u16 a)
 	else
 		return a;
 }
-/*======================================================================*/
-/*  Global Function Definitions                                         */
-/*======================================================================*/
+
 u16 *nls_wstrchr(u16 *str, u16 wchar)
 {
 	while (*str) {
@@ -408,10 +386,6 @@ s32 nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring, const s32
 	return __nls_vfsname_to_uni16s(sb, p_cstring, len, uniname, p_lossy);
 }
 
-/*======================================================================*/
-/*  Local Function Definitions                                          */
-/*======================================================================*/
-
 static s32 convert_ch_to_uni(struct nls_table *nls, u8 *ch, u16 *uni, s32 *lossy)
 {
 	int len;
@@ -436,7 +410,7 @@ static s32 convert_ch_to_uni(struct nls_table *nls, u8 *ch, u16 *uni, s32 *lossy
 	}
 
 	return len;
-} /* end of convert_ch_to_uni */
+}
 
 static s32 convert_uni_to_ch(struct nls_table *nls, u16 uni, u8 *ch, s32 *lossy)
 {
@@ -461,6 +435,4 @@ static s32 convert_uni_to_ch(struct nls_table *nls, u16 uni, u8 *ch, s32 *lossy)
 
 	return len;
 
-} /* end of convert_uni_to_ch */
-
-/* end of nls.c */
+}

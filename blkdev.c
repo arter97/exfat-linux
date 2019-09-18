@@ -1,40 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  blkdev.c: exFAT Block Device Driver Glue Layer
  */
-
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : blkdev.c                                                  */
-/*  PURPOSE : exFAT Block Device Driver Glue Layer                      */
-/*                                                                      */
-/*----------------------------------------------------------------------*/
-/*  NOTES                                                               */
-/*                                                                      */
-/************************************************************************/
 
 #include <linux/blkdev.h>
 #include <linux/log2.h>
 #include <linux/backing-dev.h>
-
 #include "exfat.h"
-
-/*----------------------------------------------------------------------*/
-/*  Constant & Macro Definitions                                        */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Global Variable Definitions                                         */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Local Variable Definitions                                          */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY                       */
-/************************************************************************/
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
 	/* EMPTY */
@@ -45,9 +19,6 @@ static struct backing_dev_info *inode_to_bdi(struct inode *bd_inode)
 }
 #endif
 
-/*======================================================================*/
-/*  Function Definitions                                                */
-/*======================================================================*/
 s32 bdev_open_dev(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
@@ -406,6 +377,4 @@ s32 write_msect_zero(struct super_block *sb, u64 sec, u64 num_secs)
 		return -EAGAIN;
 
 	return 0;
-} /* end of write_msect_zero */
-
-/* end of blkdev.c */
+}

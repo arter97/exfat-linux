@@ -6,19 +6,12 @@
 #ifndef _EXFAT_CONFIG_H
 #define _EXFAT_CONFIG_H
 
-/*----------------------------------------------------------------------*/
-/* Debug/Experimental Config                                            */
-/*----------------------------------------------------------------------*/
 //#define CONFIG_EXFAT_TRACE_IO
 //#define CONFIG_EXFAT_TRACE_LOCK /* Trace elapsed time in lock_super(sb) */
 
 #ifndef CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS
 #define CONFIG_EXFAT_WRITE_SB_INTERVAL_CSECS	(dirty_writeback_interval)
 #endif
-
-/*----------------------------------------------------------------------*/
-/* Default Kconfig                                                      */
-/*----------------------------------------------------------------------*/
 
 #ifndef CONFIG_EXFAT_DEFAULT_CODEPAGE /* if Kconfig lacked codepage */
 #define CONFIG_EXFAT_DEFAULT_CODEPAGE   437
@@ -37,5 +30,3 @@
 #endif
 
 #endif /* _EXFAT_CONFIG_H */
-
-/* end of config.h */

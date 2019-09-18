@@ -12,13 +12,6 @@
 #include "api.h"
 #include "upcase.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-/*----------------------------------------------------------------------*/
-/*  Constant & Macro Definitions                                        */
-/*----------------------------------------------------------------------*/
 #define get_next_clus(sb, pclu)		fat_ent_get(sb, *(pclu), pclu)
 #define get_next_clus_safe(sb, pclu)	fat_ent_get_safe(sb, *(pclu), pclu)
 
@@ -33,9 +26,6 @@ extern "C" {
  */
 #define DIR_DELETED				0xFFFF0321
 
-/*----------------------------------------------------------------------*/
-/*  Type Definitions                                                    */
-/*----------------------------------------------------------------------*/
 #define ES_2_ENTRIES		2
 #define ES_3_ENTRIES		3
 #define ES_ALL_ENTRIES	0
@@ -47,12 +37,6 @@ typedef struct {
 	u32	num_entries;
 	void	*__buf;		// __buf should be the last member
 } ENTRY_SET_CACHE_T;
-
-
-
-/*----------------------------------------------------------------------*/
-/*  External Function Declarations                                      */
-/*----------------------------------------------------------------------*/
 
 /* file system initialization & shutdown functions */
 s32 fscore_init(void);
@@ -91,11 +75,6 @@ s32 fscore_unlink(struct inode *inode, FILE_ID_T *fid);
 s32 fscore_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid);
 s32 fscore_readdir(struct inode *inode, DIR_ENTRY_T *dir_ent);
 s32 fscore_rmdir(struct inode *inode, FILE_ID_T *fid);
-
-
-/*----------------------------------------------------------------------*/
-/*  External Function Declarations (NOT TO UPPER LAYER)                 */
-/*----------------------------------------------------------------------*/
 
 /* core.c : core code for common */
 /* dir entry management functions */
@@ -170,15 +149,7 @@ void extent_cache_init_inode(struct inode *inode);
 void extent_cache_inval_inode(struct inode *inode);
 s32 extent_get_clus(struct inode *inode, u32 cluster, u32 *fclus,
 		u32 *dclus, u32 *last_dclus, s32 allow_eof);
-/*----------------------------------------------------------------------*/
-/*  Wrapper Function                                                    */
-/*----------------------------------------------------------------------*/
+
 void	set_sb_dirty(struct super_block *sb);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
 #endif /* _EXFAT_CORE_H */
-
-/* end of core.h */

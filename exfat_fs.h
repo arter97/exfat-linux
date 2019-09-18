@@ -10,9 +10,6 @@
 #include <linux/magic.h>
 #include <asm/byteorder.h>
 
-/*----------------------------------------------------------------------*/
-/*  Constant & Macro Definitions                                        */
-/*----------------------------------------------------------------------*/
 #ifndef MSDOS_SUPER_MAGIC
 #define MSDOS_SUPER_MAGIC       0x4d44          /* MD */
 #endif
@@ -161,10 +158,6 @@
 
 #define EXFAT_DEBUGFLAGS_INVALID_UMOUNT        0x01
 #define EXFAT_DEBUGFLAGS_ERROR_RW              0x02
-
-/*----------------------------------------------------------------------*/
-/*  On-Disk Type Definitions                                            */
-/*----------------------------------------------------------------------*/
 
 /* FAT12/16 BIOS parameter block (64 bytes) */
 typedef struct {

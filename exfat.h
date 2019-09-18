@@ -17,9 +17,6 @@
 #include <linux/kobject.h>
 #include "api.h"
 
-/*************************************************************************
- * FUNCTIONS WHICH HAS KERNEL VERSION DEPENDENCY
- *************************************************************************/
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
 #include <linux/iversion.h>
 #define INC_IVERSION(x)		(inode_inc_iversion(x))

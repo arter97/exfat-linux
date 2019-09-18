@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  misc.c: Helper function for checksum and handling exFAT errors
  */
 
 /*
@@ -10,18 +12,6 @@
  *  22/11/2000 - Fixed fat_date_unix2dos for dates earlier than 01/01/1980
  *		 and date_dos2unix for date==0 by Igor Zhbanov(bsg@uniyar.ac.ru)
  */
-
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : misc.c                                                    */
-/*  PURPOSE : Helper function for checksum and handing exFAT error      */
-/*                                                                      */
-/*----------------------------------------------------------------------*/
-/*  NOTES                                                               */
-/*                                                                      */
-/*                                                                      */
-/************************************************************************/
 
 #include <linux/module.h>
 #include <linux/fs.h>
@@ -386,4 +376,3 @@ void __exfat_dmsg(int level, const char *fmt, ...)
 #endif
 }
 #endif
-

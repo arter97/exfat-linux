@@ -1,47 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  api.c: exFAT volume lock layer
  */
 
-/************************************************************************/
-/*                                                                      */
-/*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : exfat_api.c                                               */
-/*  PURPOSE : exFAT volume lock layer                                   */
-/*                                                                      */
-/************************************************************************/
-
-/*----------------------------------------------------------------------*/
-/*  Internal structures                                                 */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Constant & Macro Definitions                                        */
-/*----------------------------------------------------------------------*/
 static DEFINE_MUTEX(_lock_core);
-
-/*----------------------------------------------------------------------*/
-/*  Global Variable Definitions                                         */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Local Variable Definitions                                          */
-/*----------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------*/
-/*  Local Function Declarations                                         */
-/*----------------------------------------------------------------------*/
-
-/*======================================================================*/
-/*  Global Function Definitions                                         */
-/*    - All functions for global use have same return value format,     */
-/*      that is, 0 on success and minus error number on                 */
-/*      various error condition.                                        */
-/*======================================================================*/
-
-/*----------------------------------------------------------------------*/
-/*  exFAT Filesystem Init & Exit Functions                              */
-/*----------------------------------------------------------------------*/
 
 static s32 fsapi_init(void)
 {
@@ -52,10 +16,6 @@ static s32 fsapi_shutdown(void)
 {
 	return fscore_shutdown();
 }
-
-/*----------------------------------------------------------------------*/
-/*  Volume Management Functions                                         */
-/*----------------------------------------------------------------------*/
 
 /* mount the file system volume */
 static s32 fsapi_mount(struct super_block *sb)
@@ -144,10 +104,6 @@ static s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
-
-/*----------------------------------------------------------------------*/
-/*  File Operation Functions                                            */
-/*----------------------------------------------------------------------*/
 
 /* lookup */
 static s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
@@ -297,10 +253,6 @@ static s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int des
 	return err;
 }
 
-/*----------------------------------------------------------------------*/
-/*  Directory Operation Functions                                       */
-/*----------------------------------------------------------------------*/
-
 /* create(make) a directory */
 static s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 {
@@ -349,7 +301,8 @@ static s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid)
 	return err;
 }
 
-/* unlink a file.
+/*
+ * unlink a file.
  * that is, remove an entry from a directory. BUT don't truncate
  */
 static s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
@@ -397,5 +350,3 @@ static s32 fsapi_check_bdi_valid(struct super_block *sb)
 {
 	return fscore_check_bdi_valid(sb);
 }
-
-/* end of exfat_api.c */
