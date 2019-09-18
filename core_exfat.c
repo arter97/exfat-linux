@@ -434,7 +434,6 @@ static s32 __write_partial_entries_in_entry_set(struct super_block *sb,
 	u32 clu;
 	u8 *buf, *esbuf = (u8 *)&(es->__buf);
 
-	TMSG("%s entered\n", __func__);
 	MMSG("%s: es %p sec %llu off %u cnt %d\n", __func__, es, sec, off, count);
 	num_entries = count;
 
@@ -468,10 +467,8 @@ static s32 __write_partial_entries_in_entry_set(struct super_block *sb,
 		}
 	}
 
-	TMSG("%s exited successfully\n", __func__);
 	return 0;
 err_out:
-	TMSG("%s failed\n", __func__);
 	return -EIO;
 }
 
@@ -539,7 +536,6 @@ ENTRY_SET_CACHE_T *get_dentry_set_in_dir(struct super_block *sb,
 		return NULL;
 	}
 
-	TMSG("%s entered\n", __func__);
 	MMSG("p_dir dir %u flags %x size %d\n", p_dir->dir, p_dir->flags, p_dir->size);
 	MMSG("entry %d type %d\n", entry, type);
 
@@ -669,11 +665,9 @@ ENTRY_SET_CACHE_T *get_dentry_set_in_dir(struct super_block *sb,
 
 	MMSG("es sec %llu offset %u flags %d, num_entries %u buf ptr %p\n",
 	 es->sector, es->offset, es->alloc_flag, es->num_entries, &(es->__buf));
-	TMSG("%s exited %p\n", __func__, es);
 	return es;
-err_out:
-	TMSG("%s exited (return NULL) (es %p)\n", __func__, es);
 
+err_out:
 	/* kfree(NULL) is safe */
 	kfree(es);
 	es = NULL;
@@ -682,8 +676,6 @@ err_out:
 
 void release_dentry_set(ENTRY_SET_CACHE_T *es)
 {
-	TMSG("%s %p\n", __func__, es);
-
 	/* kfree(NULL) is safe */
 	kfree(es);
 	es = NULL;
@@ -1148,7 +1140,6 @@ static s32 clr_alloc_bitmap(struct super_block *sb, u32 clu)
 	if (opts->discard) {
 		s32 ret_discard;
 
-		TMSG("discard cluster(%08x)\n", clu+2);
 		ret_discard = sb_issue_discard(sb, CLUS_TO_SECT(fsi, clu+2),
 				(1 << fsi->sect_per_clus_bits), GFP_NOFS, 0);
 

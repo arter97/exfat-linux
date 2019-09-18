@@ -222,9 +222,7 @@ static s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	TMSG("%s entered (inode %p size %llu)\n", __func__, inode, new_size);
 	err = fscore_truncate(inode, old_size, new_size);
-	TMSG("%s exitted (%d)\n", __func__, err);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -267,9 +265,7 @@ static s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	TMSG("%s entered (inode %p info %p\n", __func__, inode, info);
 	err = fscore_read_inode(inode, info);
-	TMSG("%s exited (err:%d)\n", __func__, err);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -281,10 +277,7 @@ static s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	TMSG("%s entered (inode %p info %p sync:%d\n",
-			__func__, inode, info, sync);
 	err = fscore_write_inode(inode, info, sync);
-	TMSG("%s exited (err:%d)\n", __func__, err);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -299,10 +292,7 @@ static s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int des
 	ASSERT(clu);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	TMSG("%s entered (inode:%p clus:%08x dest:%d\n",
-				__func__, inode, *clu, dest);
 	err = fscore_map_clus(inode, clu_offset, clu, dest);
-	TMSG("%s exited (clu:%08x err:%d)\n", __func__, *clu, err);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }

@@ -1418,12 +1418,9 @@ static long exfat_generic_ioctl(struct file *filp, unsigned int cmd, unsigned lo
 
 static int __exfat_getattr(struct inode *inode, struct kstat *stat)
 {
-	TMSG("%s entered\n", __func__);
-
 	generic_fillattr(inode, stat);
 	stat->blksize = EXFAT_SB(inode->i_sb)->fsi.cluster_size;
 
-	TMSG("%s exited\n", __func__);
 	return 0;
 }
 
@@ -1496,8 +1493,6 @@ static int __exfat_create(struct inode *dir, struct dentry *dentry)
 
 	__lock_super(sb);
 
-	TMSG("%s entered\n", __func__);
-
 	err = fsapi_create(dir, (u8 *) dentry->d_name.name, FM_REGULAR, &fid);
 	if (err)
 		goto out;
@@ -1525,7 +1520,6 @@ static int __exfat_create(struct inode *dir, struct dentry *dentry)
 out:
 	__unlock_d_revalidate(dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 
 	return err;
 }
@@ -1562,7 +1556,6 @@ static struct dentry *__exfat_lookup(struct inode *dir, struct dentry *dentry)
 	mode_t i_mode;
 
 	__lock_super(sb);
-	TMSG("%s entered\n", __func__);
 	err = exfat_find(dir, &dentry->d_name, &fid);
 	if (err) {
 		if (err == -ENOENT) {
@@ -1622,7 +1615,6 @@ static struct dentry *__exfat_lookup(struct inode *dir, struct dentry *dentry)
 		}
 		iput(inode);
 		__unlock_super(sb);
-		TMSG("%s exited\n", __func__);
 		return alias;
 	}
 	dput(alias);
@@ -1633,11 +1625,10 @@ out:
 
 	dentry = d_splice_alias(inode, dentry);
 
-	TMSG("%s exited\n", __func__);
 	return dentry;
+
 error:
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 	return ERR_PTR(err);
 }
 
@@ -1649,8 +1640,6 @@ static int exfat_unlink(struct inode *dir, struct dentry *dentry)
 	int err;
 
 	__lock_super(sb);
-
-	TMSG("%s entered\n", __func__);
 
 	EXFAT_I(inode)->fid.size = i_size_read(inode);
 
@@ -1674,7 +1663,6 @@ static int exfat_unlink(struct inode *dir, struct dentry *dentry)
 out:
 	__unlock_d_revalidate(dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 	return err;
 }
 
@@ -1693,8 +1681,6 @@ static int exfat_symlink(struct inode *dir, struct dentry *dentry, const char *t
 		return -ENOTSUPP;
 
 	__lock_super(sb);
-
-	TMSG("%s entered\n", __func__);
 
 	err = fsapi_create(dir, (u8 *) dentry->d_name.name, FM_SYMLINK, &fid);
 	if (err)
@@ -1737,7 +1723,6 @@ static int exfat_symlink(struct inode *dir, struct dentry *dentry, const char *t
 out:
 	__unlock_d_revalidate(dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 	return err;
 }
 
@@ -1751,8 +1736,6 @@ static int __exfat_mkdir(struct inode *dir, struct dentry *dentry)
 	int err;
 
 	__lock_super(sb);
-
-	TMSG("%s entered\n", __func__);
 
 	err = fsapi_mkdir(dir, (u8 *) dentry->d_name.name, &fid);
 	if (err)
@@ -1783,7 +1766,6 @@ static int __exfat_mkdir(struct inode *dir, struct dentry *dentry)
 out:
 	__unlock_d_revalidate(dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 
 	return err;
 }
@@ -1796,8 +1778,6 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
 	int err;
 
 	__lock_super(sb);
-
-	TMSG("%s entered\n", __func__);
 
 	EXFAT_I(inode)->fid.size = i_size_read(inode);
 
@@ -1822,7 +1802,6 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
 out:
 	__unlock_d_revalidate(dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 	return err;
 }
 
@@ -1835,8 +1814,6 @@ static int __exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	int err;
 
 	__lock_super(sb);
-
-	TMSG("%s entered\n", __func__);
 
 	old_inode = old_dentry->d_inode;
 	new_inode = new_dentry->d_inode;
@@ -1901,7 +1878,6 @@ out:
 	__unlock_d_revalidate(old_dentry);
 	__unlock_d_revalidate(new_dentry);
 	__unlock_super(sb);
-	TMSG("%s exited with err(%d)\n", __func__, err);
 	return err;
 }
 
@@ -1989,8 +1965,6 @@ static int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 	int error;
 	loff_t old_size;
 
-	TMSG("%s entered\n", __func__);
-
 	if ((attr->ia_valid & ATTR_SIZE)
 		&& (attr->ia_size > i_size_read(inode))) {
 		error = exfat_cont_expand(inode, attr->ia_size);
@@ -2043,8 +2017,6 @@ static int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 	setattr_copy(inode, attr);
 	mark_inode_dirty(inode);
 
-
-	TMSG("%s exited with err(%d)\n", __func__, error);
 	return error;
 }
 

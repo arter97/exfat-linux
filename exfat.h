@@ -374,19 +374,16 @@ extern void __exfat_dmsg(int level, const char *fmt, ...) __printf(2, 3) __cold;
 #define EXFAT_IMSG(...) EXFAT_DMSG_T(EXFAT_MSG_LV_INFO, __VA_ARGS__)
 #define EXFAT_DMSG(...) EXFAT_DMSG_T(EXFAT_MSG_LV_DBG, __VA_ARGS__)
 #define EXFAT_MMSG(...) EXFAT_DMSG_T(EXFAT_MSG_LV_MORE, __VA_ARGS__)
-#define EXFAT_TMSG(...) EXFAT_DMSG_T(EXFAT_MSG_LV_TRACE, __VA_ARGS__)
 
 #define EMSG(...)
 #define IMSG(...)
 #define DMSG(...)
 #define MMSG(...)
-#define TMSG(...)
 
 #define EMSG_VAR(exp)
 #define IMSG_VAR(exp)
 #define DMSG_VAR(exp)
 #define MMSG_VAR(exp)
-#define TMSG_VAR(exp)
 
 #ifdef CONFIG_EXFAT_DBG_MSG
 
@@ -417,14 +414,6 @@ extern void __exfat_dmsg(int level, const char *fmt, ...) __printf(2, 3) __cold;
 #undef MMSG_VAR
 #define MMSG(...)	EXFAT_MMSG(__VA_ARGS__)
 #define MMSG_VAR(exp)	exp
-#endif
-
-/* should replace with trace function */
-#if (EXFAT_MSG_LEVEL >= EXFAT_MSG_LV_TRACE)
-#undef TMSG
-#undef TMSG_VAR
-#define TMSG(...)	EXFAT_TMSG(__VA_ARGS__)
-#define TMSG_VAR(exp)	exp
 #endif
 
 #endif /* CONFIG_EXFAT_DBG_MSG */

@@ -54,8 +54,6 @@ static inline void __set_sb_dirty(struct super_block *sb)
 void set_sb_dirty(struct super_block *sb)
 {
 	__set_sb_dirty(sb);
-	// XXX: to be removed later, prints too much output
-	//TMSG("%s finished.\n", __func__);
 }
 
 /*
@@ -1677,8 +1675,6 @@ s32 fscore_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	FILE_ID_T *dir_fid = &(EXFAT_I(inode)->fid);
 
-	TMSG("%s entered\n", __func__);
-
 	/* check the validity of directory name in the given pathname */
 	ret = resolve_path_for_lookup(inode, path, &dir, &uni_name);
 	if (ret)
@@ -1757,7 +1753,6 @@ s32 fscore_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	fid->hint_stat.clu = fid->start_clu;
 	fid->hint_femp.eidx = -1;
 
-	TMSG("%s exited successfully\n", __func__);
 	return 0;
 } /* end of fscore_lookup */
 
@@ -2555,8 +2550,6 @@ s32 fscore_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 	ENTRY_SET_CACHE_T *es = NULL;
 	u8 is_dir = (fid->type == TYPE_DIR) ? 1 : 0;
 
-	TMSG("%s entered\n", __func__);
-
 	extent_cache_init_inode(inode);
 
 	/* if root directory */
@@ -2653,7 +2646,6 @@ s32 fscore_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 		info->NumSubdirs = count;
 	}
 
-	TMSG("%s exited successfully\n", __func__);
 	return 0;
 } /* end of fscore_read_inode */
 
@@ -3000,8 +2992,6 @@ s32 fscore_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	UNI_NAME_T uni_name;
 	struct super_block *sb = inode->i_sb;
 
-	TMSG("%s entered\n", __func__);
-
 	/* check the validity of directory name in the given old pathname */
 	ret = resolve_path(inode, path, &dir, &uni_name);
 	if (ret)
@@ -3014,7 +3004,6 @@ s32 fscore_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 	fs_sync(sb, 0);
 	fs_set_vol_flags(sb, VOL_CLEAN);
 out:
-	TMSG("%s exited with err(%d)\n", __func__, ret);
 	return ret;
 }
 
