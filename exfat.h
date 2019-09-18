@@ -246,10 +246,10 @@ static inline void exfat_save_attr(struct inode *inode, u32 attr)
 
 /* exfat/nls.c */
 /* NLS management function */
-s32  nls_cmp_uniname(struct super_block *sb, u16 *a, u16 *b);
-s32  nls_sfn_to_uni16s(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T *p_uniname);
-s32  nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *uniname, u8 *p_cstring, s32 len);
-s32  nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring,
+s32  exfat_nls_cmp_uniname(struct super_block *sb, u16 *a, u16 *b);
+s32  exfat_nls_sfn_to_uni16s(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T *p_uniname);
+s32  exfat_nls_uni16s_to_vfsname(struct super_block *sb, UNI_NAME_T *uniname, u8 *p_cstring, s32 len);
+s32  exfat_nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cstring,
 			const s32 len, UNI_NAME_T *uniname, s32 *p_lossy);
 
 /* exfat/xattr.c */
@@ -295,7 +295,7 @@ extern void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec_compa
 				DATE_TIME_T *tp);
 extern void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec_compat *ts,
 				DATE_TIME_T *tp);
-extern TIMESTAMP_T *tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tm);
+extern TIMESTAMP_T *exfat_tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tm);
 
 #ifdef CONFIG_EXFAT_DEBUG
 

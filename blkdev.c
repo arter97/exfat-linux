@@ -19,7 +19,7 @@ static struct backing_dev_info *inode_to_bdi(struct inode *bd_inode)
 }
 #endif
 
-s32 bdev_open_dev(struct super_block *sb)
+s32 exfat_bdev_open_dev(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -30,7 +30,7 @@ s32 bdev_open_dev(struct super_block *sb)
 	return 0;
 }
 
-s32 bdev_close_dev(struct super_block *sb)
+s32 exfat_bdev_close_dev(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -46,7 +46,7 @@ static inline s32 block_device_ejected(struct super_block *sb)
 	return (bdi->dev == NULL);
 }
 
-s32 bdev_check_bdi_valid(struct super_block *sb)
+s32 exfat_bdev_check_bdi_valid(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -65,7 +65,7 @@ s32 bdev_check_bdi_valid(struct super_block *sb)
 
 
 /* Make a readahead request */
-s32 bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
+s32 exfat_bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u32 sects_per_page = (PAGE_SIZE >> sb->s_blocksize_bits);
@@ -93,7 +93,7 @@ s32 bdev_readahead(struct super_block *sb, u64 secno, u64 num_secs)
 	return 0;
 }
 
-s32 bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh, u64 num_secs, s32 read)
+s32 exfat_bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh, u64 num_secs, s32 read)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u8 blksize_bits = sb->s_blocksize_bits;
@@ -131,7 +131,7 @@ s32 bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh, u64 n
 	return -EIO;
 }
 
-s32 bdev_mwrite(struct super_block *sb, u64 secno, struct buffer_head *bh, u64 num_secs, s32 sync)
+s32 exfat_bdev_mwrite(struct super_block *sb, u64 secno, struct buffer_head *bh, u64 num_secs, s32 sync)
 {
 	u64 count;
 	struct buffer_head *bh2;
@@ -185,7 +185,7 @@ no_bh:
 	return -EIO;
 }
 
-s32 bdev_sync_all(struct super_block *sb)
+s32 exfat_bdev_sync_all(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 #ifdef CONFIG_EXFAT_DBG_IOCTL
@@ -205,7 +205,7 @@ s32 bdev_sync_all(struct super_block *sb)
 /*
  *  Sector Read/Write Functions
  */
-s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read)
+s32 exfat_read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -216,7 +216,7 @@ s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read
 		return -EIO;
 	}
 
-	if (bdev_mread(sb, sec, bh, 1, read)) {
+	if (exfat_bdev_mread(sb, sec, bh, 1, read)) {
 		exfat_fs_error_ratelimit(sb,
 				"%s: I/O error (sect:%llu)", __func__, sec);
 		return -EIO;
@@ -225,7 +225,7 @@ s32 read_sect(struct super_block *sb, u64 sec, struct buffer_head **bh, s32 read
 	return 0;
 }
 
-s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync)
+s32 exfat_write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
@@ -236,7 +236,7 @@ s32 write_sect(struct super_block *sb, u64 sec, struct buffer_head *bh, s32 sync
 		return -EIO;
 	}
 
-	if (bdev_mwrite(sb, sec, bh, 1, sync)) {
+	if (exfat_bdev_mwrite(sb, sec, bh, 1, sync)) {
 		exfat_fs_error_ratelimit(sb, "%s: I/O error (sect:%llu)",
 						__func__, sec);
 		return -EIO;
@@ -321,7 +321,7 @@ error:
 	return err;
 }
 
-s32 write_msect_zero(struct super_block *sb, u64 sec, u64 num_secs)
+s32 exfat_write_msect_zero(struct super_block *sb, u64 sec, u64 num_secs)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 

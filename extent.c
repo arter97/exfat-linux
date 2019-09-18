@@ -46,7 +46,7 @@ static void init_once(void *c)
 	INIT_LIST_HEAD(&cache->cache_list);
 }
 
-s32 extent_cache_init(void)
+s32 exfat_extent_cache_init(void)
 {
 	extent_cache_cachep = kmem_cache_create("exfat_extent_cache",
 				sizeof(struct extent_cache),
@@ -57,14 +57,14 @@ s32 extent_cache_init(void)
 	return 0;
 }
 
-void extent_cache_shutdown(void)
+void exfat_extent_cache_shutdown(void)
 {
 	if (!extent_cache_cachep)
 		return;
 	kmem_cache_destroy(extent_cache_cachep);
 }
 
-void extent_cache_init_inode(struct inode *inode)
+void exfat_extent_cache_init_inode(struct inode *inode)
 {
 	EXTENT_T *extent = &(EXFAT_I(inode)->fid.extent);
 
@@ -206,7 +206,7 @@ out:
  * Cache invalidation occurs rarely, thus the LRU chain is not updated. It
  * fixes itself after a while.
  */
-static void __extent_cache_inval_inode(struct inode *inode)
+static void __exfat_extent_cache_inval_inode(struct inode *inode)
 {
 	EXTENT_T *extent = &(EXFAT_I(inode)->fid.extent);
 	struct extent_cache *cache;
@@ -224,12 +224,12 @@ static void __extent_cache_inval_inode(struct inode *inode)
 		extent->cache_valid_id++;
 }
 
-void extent_cache_inval_inode(struct inode *inode)
+void exfat_extent_cache_inval_inode(struct inode *inode)
 {
 	EXTENT_T *extent = &(EXFAT_I(inode)->fid.extent);
 
 	spin_lock(&extent->cache_lru_lock);
-	__extent_cache_inval_inode(inode);
+	__exfat_extent_cache_inval_inode(inode);
 	spin_unlock(&extent->cache_lru_lock);
 }
 
@@ -247,7 +247,7 @@ static inline void cache_init(struct extent_cache_id *cid, u32 fclus, u32 dclus)
 	cid->nr_contig = 0;
 }
 
-s32 extent_get_clus(struct inode *inode, u32 cluster, u32 *fclus,
+s32 exfat_extent_get_clus(struct inode *inode, u32 cluster, u32 *fclus,
 		u32 *dclus, u32 *last_dclus, s32 allow_eof)
 {
 	struct super_block *sb = inode->i_sb;
@@ -301,7 +301,7 @@ s32 extent_get_clus(struct inode *inode, u32 cluster, u32 *fclus,
 			return -EIO;
 		}
 
-		if (fat_ent_get_safe(sb, *dclus, &content))
+		if (exfat_ent_get_safe(sb, *dclus, &content))
 			return -EIO;
 
 		*last_dclus = *dclus;

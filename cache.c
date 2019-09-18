@@ -100,7 +100,7 @@ static inline s32 __fat_copy(struct super_block *sb, u64 sec, struct buffer_head
 		BUG_ON(sec2 != (sec + (u64)fsi->num_FAT_sectors));
 
 		MMSG("BD: fat mirroring (%llu in FAT1, %llu in FAT2)\n", sec, sec2);
-		if (write_sect(sb, sec2, bh, sync))
+		if (exfat_write_sect(sb, sec2, bh, sync))
 			return -EIO;
 	}
 #else
@@ -124,7 +124,7 @@ static s32 __fcache_ent_flush(struct super_block *sb, cache_ent_t *bp, u32 sync)
 	sbi = EXFAT_SB(sb);
 	if (sbi->options.delayed_meta) {
 		// Make buffer dirty (XXX: Naive impl.)
-		if (write_sect(sb, bp->sec, bp->bh, 0))
+		if (exfat_write_sect(sb, bp->sec, bp->bh, 0))
 			return -EIO;
 
 		if (__fat_copy(sb, bp->sec, bp->bh, 0))
@@ -155,7 +155,7 @@ static s32 __fcache_ent_discard(struct super_block *sb, cache_ent_t *bp)
 	return 0;
 }
 
-u8 *fcache_getblk(struct super_block *sb, u64 sec)
+u8 *exfat_fcache_getblk(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
@@ -163,7 +163,7 @@ u8 *fcache_getblk(struct super_block *sb, u64 sec)
 
 	bp = __fcache_find(sb, sec);
 	if (bp) {
-		if (bdev_check_bdi_valid(sb)) {
+		if (exfat_bdev_check_bdi_valid(sb)) {
 			__fcache_ent_flush(sb, bp, 0);
 			__fcache_ent_discard(sb, bp);
 			return NULL;
@@ -182,15 +182,15 @@ u8 *fcache_getblk(struct super_block *sb, u64 sec)
 
 	/* Naive FAT read-ahead (increase I/O unit to page_ra_count) */
 	if ((sec & (page_ra_count - 1)) == 0)
-		bdev_readahead(sb, sec, (u64)page_ra_count);
+		exfat_bdev_readahead(sb, sec, (u64)page_ra_count);
 
 	/*
 	 * patch 1.2.4 : buffer_head null pointer exception problem.
 	 *
-	 * When read_sect is failed, fcache should be moved to
+	 * When exfat_read_sect is failed, fcache should be moved to
 	 * EMPTY hash_list and the first of lru_list.
 	 */
-	if (read_sect(sb, sec, &(bp->bh), 1)) {
+	if (exfat_read_sect(sb, sec, &(bp->bh), 1)) {
 		__fcache_ent_discard(sb, bp);
 		return NULL;
 	}
@@ -198,7 +198,7 @@ u8 *fcache_getblk(struct super_block *sb, u64 sec)
 	return bp->bh->b_data;
 }
 
-s32 fcache_modify(struct super_block *sb, u64 sec)
+s32 exfat_fcache_modify(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
 
@@ -208,7 +208,7 @@ s32 fcache_modify(struct super_block *sb, u64 sec)
 		return -EIO;
 	}
 
-	if (write_sect(sb, sec, bp->bh, 0))
+	if (exfat_write_sect(sb, sec, bp->bh, 0))
 		return -EIO;
 
 	if (__fat_copy(sb, sec, bp->bh, 0))
@@ -217,7 +217,7 @@ s32 fcache_modify(struct super_block *sb, u64 sec)
 	return 0;
 }
 
-s32 meta_cache_init(struct super_block *sb)
+s32 exfat_meta_cache_init(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	s32 i;
@@ -274,12 +274,12 @@ s32 meta_cache_init(struct super_block *sb)
 	return 0;
 }
 
-s32 meta_cache_shutdown(struct super_block *sb)
+s32 exfat_meta_cache_shutdown(struct super_block *sb)
 {
 	return 0;
 }
 
-s32 fcache_release_all(struct super_block *sb)
+s32 exfat_fcache_release_all(struct super_block *sb)
 {
 	s32 ret = 0;
 	cache_ent_t *bp;
@@ -311,7 +311,7 @@ s32 fcache_release_all(struct super_block *sb)
 
 
 /* internal DIRTYBIT marked => bh dirty */
-s32 fcache_flush(struct super_block *sb, u32 sync)
+s32 exfat_fcache_flush(struct super_block *sb, u32 sync)
 {
 	s32 ret = 0;
 	cache_ent_t *bp;
@@ -369,7 +369,7 @@ static cache_ent_t *__fcache_get(struct super_block *sb)
 			bp = bp_prev;
 			if (bp == &fsi->fcache.lru_list) {
 				DMSG("BD: fat cache flooding\n");
-				fcache_flush(sb, 0);	// flush all dirty FAT caches
+				exfat_fcache_flush(sb, 0);	// flush all dirty FAT caches
 				bp = fsi->fcache.lru_list.prev;
 			}
 		}
@@ -413,7 +413,7 @@ static void __fcache_remove_hash(cache_ent_t *bp)
 }
 
 /* Read-ahead a cluster */
-s32 dcache_readahead(struct super_block *sb, u64 sec)
+s32 exfat_dcache_readahead(struct super_block *sb, u64 sec)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	struct buffer_head *bh;
@@ -438,7 +438,7 @@ s32 dcache_readahead(struct super_block *sb, u64 sec)
 
 	bh = sb_find_get_block(sb, sec);
 	if (!bh || !buffer_uptodate(bh))
-		bdev_readahead(sb, sec, (u64)ra_count);
+		exfat_bdev_readahead(sb, sec, (u64)ra_count);
 
 	brelse(bh);
 
@@ -460,7 +460,7 @@ static s32 __dcache_ent_flush(struct super_block *sb, cache_ent_t *bp, u32 sync)
 	sbi = EXFAT_SB(sb);
 	if (sbi->options.delayed_meta) {
 		// Make buffer dirty (XXX: Naive impl.)
-		if (write_sect(sb, bp->sec, bp->bh, 0))
+		if (exfat_write_sect(sb, bp->sec, bp->bh, 0))
 			return -EIO;
 	}
 	bp->flag &= ~(DIRTYBIT);
@@ -493,14 +493,14 @@ static s32 __dcache_ent_discard(struct super_block *sb, cache_ent_t *bp)
 	return 0;
 }
 
-u8 *dcache_getblk(struct super_block *sb, u64 sec)
+u8 *exfat_dcache_getblk(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 
 	bp = __dcache_find(sb, sec);
 	if (bp) {
-		if (bdev_check_bdi_valid(sb)) {
+		if (exfat_bdev_check_bdi_valid(sb)) {
 			MMSG("%s: found cache(%p, sect:%llu). But invalid BDI\n"
 				, __func__, bp, sec);
 			__dcache_ent_flush(sb, bp, 0);
@@ -523,7 +523,7 @@ u8 *dcache_getblk(struct super_block *sb, u64 sec)
 	bp->flag = 0;
 	__dcache_insert_hash(sb, bp);
 
-	if (read_sect(sb, sec, &(bp->bh), 1)) {
+	if (exfat_read_sect(sb, sec, &(bp->bh), 1)) {
 		__dcache_ent_discard(sb, bp);
 		return NULL;
 	}
@@ -532,12 +532,12 @@ u8 *dcache_getblk(struct super_block *sb, u64 sec)
 
 }
 
-s32 dcache_modify(struct super_block *sb, u64 sec)
+s32 exfat_dcache_modify(struct super_block *sb, u64 sec)
 {
 	s32 ret = -EIO;
 	cache_ent_t *bp;
 
-	set_sb_dirty(sb);
+	exfat_set_sb_dirty(sb);
 
 	bp = __dcache_find(sb, sec);
 	if (unlikely(!bp)) {
@@ -545,7 +545,7 @@ s32 dcache_modify(struct super_block *sb, u64 sec)
 		return -EIO;
 	}
 
-	ret = write_sect(sb, sec, bp->bh, 0);
+	ret = exfat_write_sect(sb, sec, bp->bh, 0);
 
 	if (ret) {
 		DMSG("%s : failed to modify buffer(err:%d, sec:%llu, bp:0x%p)\n",
@@ -555,7 +555,7 @@ s32 dcache_modify(struct super_block *sb, u64 sec)
 	return ret;
 }
 
-s32 dcache_lock(struct super_block *sb, u64 sec)
+s32 exfat_dcache_lock(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
 
@@ -569,7 +569,7 @@ s32 dcache_lock(struct super_block *sb, u64 sec)
 	return -EIO;
 }
 
-s32 dcache_unlock(struct super_block *sb, u64 sec)
+s32 exfat_dcache_unlock(struct super_block *sb, u64 sec)
 {
 	cache_ent_t *bp;
 
@@ -583,7 +583,7 @@ s32 dcache_unlock(struct super_block *sb, u64 sec)
 	return -EIO;
 }
 
-s32 dcache_release(struct super_block *sb, u64 sec)
+s32 exfat_dcache_release(struct super_block *sb, u64 sec)
 {
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	cache_ent_t *bp;
@@ -595,7 +595,7 @@ s32 dcache_release(struct super_block *sb, u64 sec)
 
 	if (sbi->options.delayed_meta) {
 		if (bp->flag & DIRTYBIT) {
-			if (write_sect(sb, bp->sec, bp->bh, 0))
+			if (exfat_write_sect(sb, bp->sec, bp->bh, 0))
 				return -EIO;
 		}
 	}
@@ -612,7 +612,7 @@ s32 dcache_release(struct super_block *sb, u64 sec)
 	return 0;
 }
 
-s32 dcache_release_all(struct super_block *sb)
+s32 exfat_dcache_release_all(struct super_block *sb)
 {
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	s32 ret = 0;
@@ -634,7 +634,7 @@ s32 dcache_release_all(struct super_block *sb)
 		if (sbi->options.delayed_meta) {
 			if (bp->flag & DIRTYBIT) {
 				dirtycnt++;
-				if (write_sect(sb, bp->sec, bp->bh, 0))
+				if (exfat_write_sect(sb, bp->sec, bp->bh, 0))
 					ret = -EIO;
 			}
 		}
@@ -654,7 +654,7 @@ s32 dcache_release_all(struct super_block *sb)
 }
 
 
-s32 dcache_flush(struct super_block *sb, u32 sync)
+s32 exfat_dcache_flush(struct super_block *sb, u32 sync)
 {
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	s32 ret = 0;
@@ -679,7 +679,7 @@ s32 dcache_flush(struct super_block *sb, u32 sync)
 		if (bp->flag & DIRTYBIT) {
 			if (sbi->options.delayed_meta) {
 				// Make buffer dirty (XXX: Naive impl.)
-				if (write_sect(sb, bp->sec, bp->bh, 0)) {
+				if (exfat_write_sect(sb, bp->sec, bp->bh, 0)) {
 					ret = -EIO;
 					break;
 				}
@@ -739,7 +739,7 @@ static cache_ent_t *__dcache_get(struct super_block *sb)
 			/* If all dcaches are dirty */
 			if (bp == &fsi->dcache.lru_list) {
 				DMSG("BD: buf cache flooding\n");
-				dcache_flush(sb, 0);
+				exfat_dcache_flush(sb, 0);
 				bp = fsi->dcache.lru_list.prev;
 			}
 		}

@@ -9,12 +9,12 @@ static DEFINE_MUTEX(_lock_core);
 
 static s32 fsapi_init(void)
 {
-	return fscore_init();
+	return exfat_fscore_init();
 }
 
 static s32 fsapi_shutdown(void)
 {
-	return fscore_shutdown();
+	return exfat_fscore_shutdown();
 }
 
 /* mount the file system volume */
@@ -25,14 +25,14 @@ static s32 fsapi_mount(struct super_block *sb)
 	/* acquire the core lock for file system ccritical section */
 	mutex_lock(&_lock_core);
 
-	err = meta_cache_init(sb);
+	err = exfat_meta_cache_init(sb);
 	if (err)
 		goto out;
 
-	err = fscore_mount(sb);
+	err = exfat_fscore_mount(sb);
 out:
 	if (err)
-		meta_cache_shutdown(sb);
+		exfat_meta_cache_shutdown(sb);
 
 	/* release the core lock for file system critical section */
 	mutex_unlock(&_lock_core);
@@ -49,8 +49,8 @@ static s32 fsapi_umount(struct super_block *sb)
 	mutex_lock(&_lock_core);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_umount(sb);
-	meta_cache_shutdown(sb);
+	err = exfat_fscore_umount(sb);
+	exfat_meta_cache_shutdown(sb);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 
 	/* release the core lock for file system critical section */
@@ -71,7 +71,7 @@ static s32 fsapi_statfs(struct super_block *sb, VOL_INFO_T *info)
 		s32 err;
 
 		mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-		err = fscore_statfs(sb, info);
+		err = exfat_fscore_statfs(sb, info);
 		mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 		return err;
 	}
@@ -90,7 +90,7 @@ static s32 fsapi_sync_fs(struct super_block *sb, s32 do_sync)
 	s32 err;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_sync_fs(sb, do_sync);
+	err = exfat_fscore_sync_fs(sb, do_sync);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -100,7 +100,7 @@ static s32 fsapi_set_vol_flags(struct super_block *sb, u16 new_flag, s32 always_
 	s32 err;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_set_vol_flags(sb, new_flag, always_sync);
+	err = exfat_fscore_set_vol_flags(sb, new_flag, always_sync);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -118,7 +118,7 @@ static s32 fsapi_lookup(struct inode *inode, u8 *path, FILE_ID_T *fid)
 		return -EINVAL;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_lookup(inode, path, fid);
+	err = exfat_fscore_lookup(inode, path, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -136,7 +136,7 @@ static s32 fsapi_create(struct inode *inode, u8 *path, u8 mode, FILE_ID_T *fid)
 		return -EINVAL;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_create(inode, path, mode, fid);
+	err = exfat_fscore_create(inode, path, mode, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -151,7 +151,7 @@ static s32 fsapi_read_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u6
 	ASSERT(fid && buffer);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_read_link(inode, fid, buffer, count, rcount);
+	err = exfat_fscore_read_link(inode, fid, buffer, count, rcount);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -166,7 +166,7 @@ static s32 fsapi_write_link(struct inode *inode, FILE_ID_T *fid, void *buffer, u
 	ASSERT(fid && buffer);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_write_link(inode, fid, buffer, count, wcount);
+	err = exfat_fscore_write_link(inode, fid, buffer, count, wcount);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -178,7 +178,7 @@ static s32 fsapi_truncate(struct inode *inode, u64 old_size, u64 new_size)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_truncate(inode, old_size, new_size);
+	err = exfat_fscore_truncate(inode, old_size, new_size);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -194,7 +194,7 @@ static s32 fsapi_rename(struct inode *old_parent_inode, FILE_ID_T *fid,
 	ASSERT(fid);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_rename(old_parent_inode, fid, new_parent_inode, new_dentry);
+	err = exfat_fscore_rename(old_parent_inode, fid, new_parent_inode, new_dentry);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -209,7 +209,7 @@ static s32 fsapi_remove(struct inode *inode, FILE_ID_T *fid)
 	ASSERT(fid);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_remove(inode, fid);
+	err = exfat_fscore_remove(inode, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -221,7 +221,7 @@ static s32 fsapi_read_inode(struct inode *inode, DIR_ENTRY_T *info)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_read_inode(inode, info);
+	err = exfat_fscore_read_inode(inode, info);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -233,7 +233,7 @@ static s32 fsapi_write_inode(struct inode *inode, DIR_ENTRY_T *info, int sync)
 	struct super_block *sb = inode->i_sb;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_write_inode(inode, info, sync);
+	err = exfat_fscore_write_inode(inode, info, sync);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -248,7 +248,7 @@ static s32 fsapi_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int des
 	ASSERT(clu);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_map_clus(inode, clu_offset, clu, dest);
+	err = exfat_fscore_map_clus(inode, clu_offset, clu, dest);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -266,7 +266,7 @@ static s32 fsapi_mkdir(struct inode *inode, u8 *path, FILE_ID_T *fid)
 		return -EINVAL;
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_mkdir(inode, path, fid);
+	err = exfat_fscore_mkdir(inode, path, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -281,7 +281,7 @@ static s32 fsapi_readdir(struct inode *inode, DIR_ENTRY_T *dir_entry)
 	ASSERT(dir_entry);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_readdir(inode, dir_entry);
+	err = exfat_fscore_readdir(inode, dir_entry);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -296,7 +296,7 @@ static s32 fsapi_rmdir(struct inode *inode, FILE_ID_T *fid)
 	ASSERT(fid);
 
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_rmdir(inode, fid);
+	err = exfat_fscore_rmdir(inode, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -313,7 +313,7 @@ static s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
 	/* check the validity of pointer parameters */
 	ASSERT(fid);
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	err = fscore_unlink(inode, fid);
+	err = exfat_fscore_unlink(inode, fid);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return err;
 }
@@ -322,8 +322,8 @@ static s32 fsapi_unlink(struct inode *inode, FILE_ID_T *fid)
 static s32 fsapi_cache_flush(struct super_block *sb, int do_sync)
 {
 	mutex_lock(&(EXFAT_SB(sb)->s_vlock));
-	fcache_flush(sb, do_sync);
-	dcache_flush(sb, do_sync);
+	exfat_fcache_flush(sb, do_sync);
+	exfat_dcache_flush(sb, do_sync);
 	mutex_unlock(&(EXFAT_SB(sb)->s_vlock));
 	return 0;
 }
@@ -331,7 +331,7 @@ static s32 fsapi_cache_flush(struct super_block *sb, int do_sync)
 static u32 fsapi_get_au_stat(struct super_block *sb, s32 mode)
 {
 	/* volume lock is not required */
-	return fscore_get_au_stat(sb, mode);
+	return exfat_fscore_get_au_stat(sb, mode);
 }
 
 /* clear extent cache */
@@ -342,11 +342,11 @@ static void fsapi_invalidate_extent(struct inode *inode)
 	 * If any other function can call it,
 	 * you should check whether volume lock is needed or not.
 	 */
-	extent_cache_inval_inode(inode);
+	exfat_extent_cache_inval_inode(inode);
 }
 
 /* check device is ejected */
 static s32 fsapi_check_bdi_valid(struct super_block *sb)
 {
-	return fscore_check_bdi_valid(sb);
+	return exfat_fscore_check_bdi_valid(sb);
 }

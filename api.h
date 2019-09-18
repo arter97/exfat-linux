@@ -183,11 +183,6 @@ typedef struct __cache_entry {
 	struct buffer_head   *bh;
 } cache_ent_t;
 
-typedef struct __FATENT_OPS_T {
-	s32 (*ent_get)(struct super_block *sb, u32 loc, u32 *content);
-	s32 (*ent_set)(struct super_block *sb, u32 loc, u32 content);
-} FATENT_OPS_T;
-
 typedef struct {
 	s32      (*alloc_cluster)(struct super_block *, u32, CHAIN_T *, s32);
 	s32      (*free_cluster)(struct super_block *, CHAIN_T *, s32);
@@ -247,7 +242,6 @@ typedef struct __FS_INFO_T {
 	u32      prev_eio;            // block device operation error flag
 
 	FS_FUNC_T   *fs_func;
-	FATENT_OPS_T   *fatent_ops;
 
 	s32       reserved_clusters;  // # of reserved clusters (DA)
 	void        *amap;                  // AU Allocation Map

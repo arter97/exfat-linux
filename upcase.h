@@ -14,11 +14,11 @@
 #define UTBL_ROW_COUNT (1<<LOW_INDEX_BIT)
 #define UTBL_COL_COUNT (1<<HIGH_INDEX_BIT)
 
-static inline u16 get_col_index(u16 i)
+static inline u16 exfat_get_col_index(u16 i)
 {
 	return i >> LOW_INDEX_BIT;
 }
-static inline u16 get_row_index(u16 i)
+static inline u16 exfat_get_row_index(u16 i)
 {
 	return i & ~HIGH_INDEX_MASK;
 }

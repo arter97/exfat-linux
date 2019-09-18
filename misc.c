@@ -248,7 +248,7 @@ void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec_compat *ts,
 	tp->Year = year;
 }
 
-TIMESTAMP_T *tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tp)
+TIMESTAMP_T *exfat_tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tp)
 {
 	struct timespec_compat ts;
 	DATE_TIME_T dt;
@@ -266,7 +266,7 @@ TIMESTAMP_T *tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tp)
 	return tp;
 }
 
-u16 calc_chksum_2byte(void *data, s32 len, u16 chksum, s32 type)
+u16 exfat_calc_chksum_2byte(void *data, s32 len, u16 chksum, s32 type)
 {
 	s32 i;
 	u8 *c = (u8 *) data;
