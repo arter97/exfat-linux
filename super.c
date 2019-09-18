@@ -2980,7 +2980,8 @@ static int exfat_fill_inode(struct inode *inode, const FILE_ID_T *fid)
 }
 
 static struct inode *exfat_build_inode(struct super_block *sb,
-				   const FILE_ID_T *fid, loff_t i_pos) {
+				   const FILE_ID_T *fid, loff_t i_pos)
+{
 	struct inode *inode;
 	int err;
 
@@ -3848,7 +3849,8 @@ failed_mount:
 }
 
 static struct dentry *exfat_fs_mount(struct file_system_type *fs_type,
-				 int flags, const char *dev_name, void *data) {
+				 int flags, const char *dev_name, void *data)
+{
 	return mount_bdev(fs_type, flags, dev_name, data, exfat_fill_super);
 }
 
