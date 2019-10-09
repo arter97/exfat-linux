@@ -54,9 +54,6 @@ void exfat_uevent_ro_remount(struct super_block *sb)
 	snprintf(minor, sizeof(minor), "MINOR=%d", MINOR(bd_dev));
 
 	kobject_uevent_env(&exfat_uevent_kobj, KOBJ_CHANGE, envp);
-
-	ST_LOG("[EXFAT](%s[%d:%d]): Uevent triggered\n",
-			sb->s_id, MAJOR(bd_dev), MINOR(bd_dev));
 }
 #endif
 
