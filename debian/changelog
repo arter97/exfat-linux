@@ -1,3 +1,11 @@
+exfat-dkms (2.2.0-2arter97) UNRELEASED; urgency=medium
+
+  * Fix xattr support.
+  * Merged upstream exFAT changes.
+  * More code clean-ups.
+
+ -- Park Ju Hyung <qkrwngud825@gmail.com>  Wed, 9 Oct 2019 23:16:22 +0900
+
 exfat-dkms (2.2.0-1arter97) UNRELEASED; urgency=medium
 
   * Initial release.
