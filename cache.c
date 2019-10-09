@@ -91,7 +91,6 @@ static inline void __remove_from_hash(cache_ent_t *bp)
  */
 static inline s32 __fat_copy(struct super_block *sb, u64 sec, struct buffer_head *bh, int sync)
 {
-#ifdef CONFIG_EXFAT_FAT_MIRRORING
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u64 sec2;
 
@@ -103,9 +102,7 @@ static inline s32 __fat_copy(struct super_block *sb, u64 sec, struct buffer_head
 		if (exfat_write_sect(sb, sec2, bh, sync))
 			return -EIO;
 	}
-#else
-	/* DO NOTHING */
-#endif
+
 	return 0;
 }
 

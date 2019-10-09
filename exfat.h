@@ -142,17 +142,7 @@ struct exfat_sb_info {
 	spinlock_t inode_hash_lock;
 	struct hlist_head inode_hashtable[EXFAT_HASH_SIZE];
 	struct kobject sb_kobj;
-#ifdef CONFIG_EXFAT_DBG_IOCTL
-	long debug_flags;
-#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
-#ifdef CONFIG_EXFAT_TRACE_IO
-	/* Statistics for allocator */
-	unsigned int stat_n_pages_written;	/* # of written pages in total */
-	unsigned int stat_n_pages_added;	/* # of added blocks in total */
-	unsigned int stat_n_bdev_pages_written;	/* # of written pages owned by bdev inode */
-	unsigned int stat_n_pages_confused;
-#endif
 	atomic_t stat_n_pages_queued;	/* # of pages in the request queue (approx.) */
 };
 
@@ -299,12 +289,6 @@ extern TIMESTAMP_T *exfat_tm_now(struct exfat_sb_info *sbi, TIMESTAMP_T *tm);
 
 #ifdef CONFIG_EXFAT_DEBUG
 
-#ifdef CONFIG_EXFAT_DBG_CAREFUL
-void exfat_debug_check_clusters(struct inode *inode);
-#else
-#define exfat_debug_check_clusters(inode)
-#endif /* CONFIG_EXFAT_DBG_CAREFUL */
-
 #ifdef CONFIG_EXFAT_DBG_BUGON
 #define exfat_debug_bug_on(expr)        BUG_ON(expr)
 #else
@@ -319,30 +303,10 @@ void exfat_debug_check_clusters(struct inode *inode);
 
 #else /* CONFIG_EXFAT_DEBUG */
 
-#define exfat_debug_check_clusters(inode)
 #define exfat_debug_bug_on(expr)
 #define exfat_debug_warn_on(expr)
 
 #endif /* CONFIG_EXFAT_DEBUG */
-
-#ifdef CONFIG_EXFAT_TRACE_ELAPSED_TIME
-u32 exfat_time_current_usec(struct timeval *tv);
-extern struct timeval __t1;
-extern struct timeval __t2;
-
-#define TIME_GET(tv)	exfat_time_current_usec(tv)
-#define TIME_START(s)	exfat_time_current_usec(s)
-#define TIME_END(e)	exfat_time_current_usec(e)
-#define TIME_ELAPSED(s, e) ((u32)(((e)->tv_sec - (s)->tv_sec) * 1000000 + \
-			((e)->tv_usec - (s)->tv_usec)))
-#define PRINT_TIME(n)	pr_info("exFAT: Elapsed time %d = %d (usec)\n", n, (__t2 - __t1))
-#else /* CONFIG_EXFAT_TRACE_ELAPSED_TIME */
-#define TIME_GET(tv)    (0)
-#define TIME_START(s)
-#define TIME_END(e)
-#define TIME_ELAPSED(s, e)      (0)
-#define PRINT_TIME(n)
-#endif /* CONFIG_EXFAT_TRACE_ELAPSED_TIME */
 
 #define	EXFAT_MSG_LV_NONE	(0x00000000)
 #define EXFAT_MSG_LV_ERR	(0x00000001)

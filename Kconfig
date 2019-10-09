@@ -49,9 +49,6 @@ config EXFAT_DEBUG
 
 if EXFAT_DEBUG
 
-config EXFAT_DBG_IOCTL
-	bool "enable debug-ioctl features"
-
 config EXFAT_DBG_MSG
 	bool "enable debug messages"
 

@@ -137,27 +137,6 @@
  * ioctl command
  */
 #define EXFAT_IOCTL_GET_VOLUME_ID	_IOR('r', 0x12, __u32)
-#define EXFAT_IOCTL_PANIC               _IOC(_IOC_NONE, 'E', 0x17, sizeof(u32))
-
-/*
- * ioctl command for debugging
- */
-
-/*
- * IOCTL code 'f' used by
- *   - file systems typically #0~0x1F
- *   - embedded terminal devices #128~
- *   - exts for debugging purpose #99
- * number 100 and 101 is available now but has possible conflicts
- *
- * NOTE : This is available only If CONFIG_EXFAT_DVBG_IOCTL is enabled.
- *
- */
-#define EXFAT_IOC_GET_DEBUGFLAGS       _IOR('f', 100, long)
-#define EXFAT_IOC_SET_DEBUGFLAGS       _IOW('f', 101, long)
-
-#define EXFAT_DEBUGFLAGS_INVALID_UMOUNT        0x01
-#define EXFAT_DEBUGFLAGS_ERROR_RW              0x02
 
 /* FAT12/16 BIOS parameter block (64 bytes) */
 typedef struct {

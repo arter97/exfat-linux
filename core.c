@@ -2725,8 +2725,6 @@ s32 exfat_fscore_map_clus(struct inode *inode, u32 clu_offset, u32 *clu, int des
 	/* check always request cluster is 1 */
 	//ASSERT(num_to_be_allocated == 1);
 
-	exfat_debug_check_clusters(inode);
-
 	*clu = last_clu = fid->start_clu;
 
 	/* XXX: Defensive code needed.

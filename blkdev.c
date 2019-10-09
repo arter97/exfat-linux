@@ -97,13 +97,6 @@ s32 exfat_bdev_mread(struct super_block *sb, u64 secno, struct buffer_head **bh,
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
 	u8 blksize_bits = sb->s_blocksize_bits;
-#ifdef CONFIG_EXFAT_DBG_IOCTL
-	struct exfat_sb_info *sbi = EXFAT_SB(sb);
-	long flags = sbi->debug_flags;
-
-	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
-		return -EIO;
-#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
@@ -136,13 +129,6 @@ s32 exfat_bdev_mwrite(struct super_block *sb, u64 secno, struct buffer_head *bh,
 	u64 count;
 	struct buffer_head *bh2;
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-#ifdef CONFIG_EXFAT_DBG_IOCTL
-	struct exfat_sb_info *sbi = EXFAT_SB(sb);
-	long flags = sbi->debug_flags;
-
-	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
-		return -EIO;
-#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
@@ -188,13 +174,6 @@ no_bh:
 s32 exfat_bdev_sync_all(struct super_block *sb)
 {
 	FS_INFO_T *fsi = &(EXFAT_SB(sb)->fsi);
-#ifdef CONFIG_EXFAT_DBG_IOCTL
-	struct exfat_sb_info *sbi = EXFAT_SB(sb);
-	long flags = sbi->debug_flags;
-
-	if (flags & EXFAT_DEBUGFLAGS_ERROR_RW)
-		return -EIO;
-#endif /* CONFIG_EXFAT_DBG_IOCTL */
 
 	if (!fsi->bd_opened)
 		return -EIO;
