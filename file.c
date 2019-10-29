@@ -303,7 +303,7 @@ int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 	    attr->ia_size > i_size_read(inode)) {
 		error = exfat_cont_expand(inode, attr->ia_size);
 		if (error || attr->ia_valid == ATTR_SIZE)
-			return error;
+			goto out;
 		attr->ia_valid &= ~ATTR_SIZE;
 	}
 
@@ -317,8 +317,11 @@ int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 
 	error = setattr_prepare(dentry, attr);
 	attr->ia_valid = ia_valid;
-	if (error)
+	if (error) {
+		if (sbi->options.quiet)
+			error = 0;
 		goto out;
+	}
 
 	if (((attr->ia_valid & ATTR_UID) &&
 	     !uid_eq(attr->ia_uid, sbi->options.fs_uid)) ||
@@ -327,6 +330,12 @@ int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 	    ((attr->ia_valid & ATTR_MODE) &&
 	     (attr->ia_mode & ~(S_IFREG | S_IFLNK | S_IFDIR | 0777)))) {
 		error = -EPERM;
+		goto out;
+	}
+
+	if (error) {
+		if (sbi->options.quiet)
+			error = 0;
 		goto out;
 	}
 

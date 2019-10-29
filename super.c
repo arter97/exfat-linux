@@ -146,6 +146,8 @@ static int exfat_show_options(struct seq_file *m, struct dentry *root)
 	seq_printf(m, ",fmask=%04o,dmask=%04o", opts->fs_fmask, opts->fs_dmask);
 	if (opts->allow_utime)
 		seq_printf(m, ",allow_utime=%04o", opts->allow_utime);
+	if (opts->quiet)
+		seq_puts(m, ",quiet");
 	if (opts->utf8)
 		seq_puts(m, ",iocharset=utf8");
 	else if (sbi->nls_io)
@@ -203,6 +205,7 @@ enum {
 	Opt_fmask,
 	Opt_allow_utime,
 	Opt_charset,
+	Opt_quiet,
 	Opt_err_cont,
 	Opt_err_panic,
 	Opt_err_ro,
@@ -224,6 +227,7 @@ static const match_table_t exfat_tokens = {
 	{Opt_fmask, "fmask=%o"},
 	{Opt_allow_utime, "allow_utime=%o"},
 	{Opt_charset, "iocharset=%s"},
+	{Opt_quiet, "quiet"},
 	{Opt_err_cont, "errors=continue"},
 	{Opt_err_panic, "errors=panic"},
 	{Opt_err_ro, "errors=remount-ro"},
@@ -276,6 +280,9 @@ static int __exfat_parse_option(struct super_block *sb, char *p, substring_t *ar
 		if (!tmpstr)
 			return -ENOMEM;
 		opts->iocharset = tmpstr;
+		break;
+	case Opt_quiet:
+		opts->quiet = 1;
 		break;
 	case Opt_err_cont:
 		opts->errors = EXFAT_ERRORS_CONT;
