@@ -1,3 +1,9 @@
+exfat-dkms (2.2.0-3arter97) UNRELEASED; urgency=medium
+
+  * Added "quiet" mount option.
+
+ -- Park Ju Hyung <qkrwngud825@gmail.com>  Tue, 29 Oct 2019 17:34:32 +0900
+
 exfat-dkms (2.2.0-2arter97) UNRELEASED; urgency=medium
 
   * Fix xattr support.
