@@ -104,6 +104,7 @@ struct exfat_mount_options {
 	unsigned short allow_utime; /* permission for setting the [am]time */
 	unsigned short codepage;    /* codepage for shortname conversions */
 	char *iocharset;            /* charset for filename input/display */
+	unsigned char quiet;        /* fake return success on setattr(e.g. chmods/chowns) */
 
 	unsigned char utf8;
 	unsigned char casesensitive;
