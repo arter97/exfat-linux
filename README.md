@@ -161,6 +161,7 @@ Linux 4.14 was used as higher LTS kernels don't work with [exfat-nofuse] at the 
 * allow_utime
 * codepage
 * iocharset
+* quiet
 * utf8
 * tz
 
