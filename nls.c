@@ -170,7 +170,7 @@ static s32 __nls_vfsname_to_utf16s(struct super_block *sb, const u8 *p_cstring,
 		if ((*uniname < 0x0020) || nls_wstrchr(bad_uni_chars, *uniname))
 			lossy |= NLS_NAME_LOSSY;
 
-		*(upname+i) = nls_upper(sb, *uniname);
+		*(upname+i) = cpu_to_le16(nls_upper(sb, *uniname));
 		uniname++;
 	}
 
@@ -236,7 +236,7 @@ static s32 __exfat_nls_vfsname_to_uni16s(struct super_block *sb, const u8 *p_cst
 		if ((*uniname < 0x0020) || nls_wstrchr(bad_uni_chars, *uniname))
 			lossy |= NLS_NAME_LOSSY;
 
-		*(upname+unilen) = nls_upper(sb, *uniname);
+		*(upname+unilen) = cpu_to_le16(nls_upper(sb, *uniname));
 
 		uniname++;
 		unilen++;
