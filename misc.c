@@ -20,6 +20,10 @@
 #include "exfat.h"
 #include "version.h"
 
+#ifndef _TIME_T
+typedef __kernel_old_time_t	time_t;
+#endif
+
 #ifdef CONFIG_EXFAT_UEVENT
 static struct kobject exfat_uevent_kobj;
 
