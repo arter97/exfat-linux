@@ -19,6 +19,8 @@
 #include "exfat_fs.h"
 
 static int exfat_init_sb_info(struct super_block *sb);
+static int exfat_parse_options(struct super_block *sb, char *options, int silent,
+			 struct exfat_mount_options *opts);
 
 static char exfat_default_iocharset[] = CONFIG_EXFAT_DEFAULT_IOCHARSET;
 static struct kmem_cache *exfat_inode_cachep;
@@ -182,6 +184,22 @@ static void exfat_free_inode(struct inode *inode)
 	kmem_cache_free(exfat_inode_cachep, EXFAT_I(inode));
 }
 
+static int exfat_remount(struct super_block *sb, int *flags, char *opt)
+{
+	int ret = 0;
+
+	*flags |= SB_NODIRATIME;
+
+	/* volume flag will be updated in exfat_sync_fs */
+	sync_filesystem(sb);
+
+	ret = exfat_parse_options(sb, opt, 0, &EXFAT_SB(sb)->options);
+	if (ret)
+		exfat_err(sb, "failed to parse options");
+
+	return ret;
+}
+
 static const struct super_operations exfat_sops = {
 	.alloc_inode	= exfat_alloc_inode,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
@@ -195,6 +213,7 @@ static const struct super_operations exfat_sops = {
 	.sync_fs	= exfat_sync_fs,
 	.statfs		= exfat_statfs,
 	.show_options	= exfat_show_options,
+	.remount_fs	= exfat_remount,
 };
 
 enum {
