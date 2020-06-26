@@ -10,13 +10,31 @@ config EXFAT_FS
 	  To compile this as a module, choose M here: the module will be called
 	  exfat.
 
+if EXFAT_FS
+
 config EXFAT_DEFAULT_IOCHARSET
 	string "Default iocharset for exFAT"
 	default "utf8"
-	depends on EXFAT_FS
 	help
 	  Set this to the default input/output character set to use for
 	  converting between the encoding that is used for user visible
 	  filenames and the UTF-16 character encoding that the exFAT
 	  filesystem uses.  This can be overridden with the "iocharset" mount
 	  option for the exFAT filesystems.
+
+config EXFAT_VIRTUAL_XATTR
+	bool "Virtual xattr support for exFAT"
+	default y
+	help
+	  To support virtual xattr.
+
+config EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
+	string "Default string for SELinux label"
+	default "u:object_r:exfat:s0"
+	depends on EXFAT_VIRTUAL_XATTR
+	help
+	  Set this to the default string for SELinux label.
+	  Support for "u:object_r:exfat:s0" was added in Android Pie,
+	  if you're running Oreo or lower, use "u:object_r:vfat:s0" instead.
+
+endif # if EXFAT_FS

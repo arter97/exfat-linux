@@ -380,4 +380,7 @@ const struct file_operations exfat_file_operations = {
 const struct inode_operations exfat_file_inode_operations = {
 	.setattr     = exfat_setattr,
 	.getattr     = exfat_getattr,
+#ifdef CONFIG_EXFAT_VIRTUAL_XATTR
+	.listxattr      = exfat_listxattr,
+#endif
 };

@@ -661,6 +661,7 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_flags |= SB_NODIRATIME;
 	sb->s_magic = EXFAT_SUPER_MAGIC;
 	sb->s_op = &exfat_sops;
+	sb->s_xattr = exfat_xattr_handlers;
 
 	sb->s_time_gran = 10 * NSEC_PER_MSEC;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)

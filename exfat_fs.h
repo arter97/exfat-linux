@@ -487,6 +487,17 @@ int exfat_write_inode(struct inode *inode, struct writeback_control *wbc);
 void exfat_evict_inode(struct inode *inode);
 int exfat_block_truncate_page(struct inode *inode, loff_t from);
 
+/* xattr.c */
+#ifdef CONFIG_EXFAT_VIRTUAL_XATTR
+extern int exfat_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
+extern ssize_t exfat_getxattr(struct dentry *dentry, const char *name, void *value, size_t size);
+extern ssize_t exfat_listxattr(struct dentry *dentry, char *list, size_t size);
+extern int exfat_removexattr(struct dentry *dentry, const char *name);
+extern const struct xattr_handler *exfat_xattr_handlers[];
+#else
+#define exfat_xattr_handlers NULL
+#endif
+
 /* exfat/nls.c */
 unsigned short exfat_toupper(struct super_block *sb, unsigned short a);
 int exfat_uniname_ncmp(struct super_block *sb, unsigned short *a,

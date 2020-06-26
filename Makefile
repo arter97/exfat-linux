@@ -9,7 +9,7 @@ ifneq ($(KERNELRELEASE),)
 obj-$(CONFIG_EXFAT_FS) += exfat.o
 
 exfat-objs	:= inode.o namei.o dir.o super.o fatent.o cache.o nls.o misc.o \
-	   file.o balloc.o
+	   file.o balloc.o xattr.o
 else
 # Called from external kernel module build
 

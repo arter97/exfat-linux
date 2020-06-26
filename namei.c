@@ -1436,4 +1436,7 @@ const struct inode_operations exfat_dir_inode_operations = {
 	.rename		= exfat_rename,
 	.setattr	= exfat_setattr,
 	.getattr	= exfat_getattr,
+#ifdef CONFIG_EXFAT_VIRTUAL_XATTR
+	.listxattr      = exfat_listxattr,
+#endif
 };
