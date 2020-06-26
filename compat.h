@@ -8,4 +8,14 @@
 
 #include <linux/version.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
+#include <linux/iversion.h>
+#else
+#define inode_inc_iversion(inode) (inode->i_version++)
+#define inode_query_iversion(inode) (inode->i_version)
+#define inode_eq_iversion(inode, version) (inode->i_version == version)
+#define inode_peek_iversion_raw(inode) (inode->i_version)
+#define inode_set_iversion(inode, val) (inode->i_version = val)
+#endif
+
 #endif /* _EXFAT_COMPAT_H */

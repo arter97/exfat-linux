@@ -12,7 +12,6 @@
 #include <linux/seq_file.h>
 #include <linux/blkdev.h>
 #include <linux/fs_struct.h>
-#include <linux/iversion.h>
 #include <linux/nls.h>
 #include <linux/buffer_head.h>
 #include <linux/parser.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
  */
 
-#include <linux/iversion.h>
 #include <linux/namei.h>
 #include <linux/slab.h>
 #include <linux/buffer_head.h>

@@ -12,7 +12,6 @@
 #include <linux/writeback.h>
 #include <linux/uio.h>
 #include <linux/random.h>
-#include <linux/iversion.h>
 
 #include "exfat_raw.h"
 #include "exfat_fs.h"
