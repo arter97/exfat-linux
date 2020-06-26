@@ -184,7 +184,11 @@ static void exfat_free_inode(struct inode *inode)
 
 static const struct super_operations exfat_sops = {
 	.alloc_inode	= exfat_alloc_inode,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
 	.free_inode	= exfat_free_inode,
+#else
+	.destroy_inode	= exfat_free_inode,
+#endif
 	.write_inode	= exfat_write_inode,
 	.evict_inode	= exfat_evict_inode,
 	.put_super	= exfat_put_super,
