@@ -14,7 +14,6 @@
 #include <asm/unaligned.h>
 #include <linux/buffer_head.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 #define EXFAT_CACHE_VALID	0

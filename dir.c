@@ -7,7 +7,6 @@
 #include <linux/bio.h>
 #include <linux/buffer_head.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 static int exfat_extract_uni_name(struct exfat_dentry *ep,

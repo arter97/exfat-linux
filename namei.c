@@ -8,7 +8,6 @@
 #include <linux/buffer_head.h>
 #include <linux/nls.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 static inline unsigned long exfat_d_version(struct dentry *dentry)

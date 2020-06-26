@@ -7,7 +7,6 @@
 #include <asm/unaligned.h>
 #include <linux/buffer_head.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 static int exfat_mirror_bh(struct super_block *sb, sector_t sec,

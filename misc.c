@@ -11,7 +11,6 @@
 #include <linux/slab.h>
 #include <linux/buffer_head.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 /*

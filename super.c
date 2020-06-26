@@ -16,7 +16,6 @@
 #include <linux/buffer_head.h>
 #include <linux/parser.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 static int exfat_init_sb_info(struct super_block *sb);

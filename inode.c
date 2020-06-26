@@ -13,7 +13,6 @@
 #include <linux/uio.h>
 #include <linux/random.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 static int __exfat_write_inode(struct inode *inode, int sync)

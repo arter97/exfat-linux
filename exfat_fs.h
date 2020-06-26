@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "compat.h"
+#include "exfat_raw.h"
 
 #define EXFAT_SUPER_MAGIC       0x2011BAB0UL
 #define EXFAT_ROOT_INO		1

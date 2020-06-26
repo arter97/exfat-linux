@@ -8,7 +8,6 @@
 #include <linux/buffer_head.h>
 #include <asm/unaligned.h>
 
-#include "exfat_raw.h"
 #include "exfat_fs.h"
 
 /* Upcase tabel macro */
