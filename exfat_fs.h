@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "compat.h"
+#include "version.h"
 #include "exfat_raw.h"
 
 #define EXFAT_SUPER_MAGIC       0x2011BAB0UL
