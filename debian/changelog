@@ -1,3 +1,10 @@
+exfat-dkms (5.8-1arter97) UNRELEASED; urgency=medium
+
+  * Rebased to Linux mainline's drivers
+  * Supports for kernels lower than v4.9 dropped
+
+ -- Park Ju Hyung <qkrwngud825@gmail.com>  Sat, 27 Jun 2020 08:32:23 +0900
+
 exfat-dkms (2.2.0-3arter97) UNRELEASED; urgency=medium
 
   * Added "quiet" mount option.
