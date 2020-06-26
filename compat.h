@@ -18,4 +18,21 @@
 #define inode_set_iversion(inode, val) (inode->i_version = val)
 #endif
 
+/* MS flags were renamed to SB on v4.15 */
+#ifndef SB_NODIRATIME
+#define SB_NODIRATIME MS_NODIRATIME
+#endif
+
+#ifndef SB_RDONLY
+#define SB_RDONLY MS_RDONLY
+#endif
+
+#ifndef SB_SYNCHRONOUS
+#define SB_SYNCHRONOUS MS_SYNCHRONOUS
+#endif
+
+#ifndef sb_rdonly
+#define sb_rdonly(sb) ((sb)->s_flags & SB_RDONLY)
+#endif
+
 #endif /* _EXFAT_COMPAT_H */
