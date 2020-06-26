@@ -265,6 +265,7 @@ write_size:
 	mutex_unlock(&sbi->s_lock);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 int exfat_getattr(const struct path *path, struct kstat *stat,
 		unsigned int request_mask, unsigned int query_flags)
 {
@@ -279,6 +280,18 @@ int exfat_getattr(const struct path *path, struct kstat *stat,
 	stat->blksize = EXFAT_SB(inode->i_sb)->cluster_size;
 	return 0;
 }
+#else
+int exfat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+{
+	struct inode *inode = dentry->d_inode;
+
+	generic_fillattr(inode, stat);
+	exfat_truncate_atime(&stat->atime);
+	stat->blksize = EXFAT_SB(inode->i_sb)->cluster_size;
+
+	return 0;
+}
+#endif
 
 int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 {
