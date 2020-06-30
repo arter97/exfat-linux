@@ -8,6 +8,16 @@
 
 #include <linux/version.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+#error "This driver doesn't support v5.8+, " \
+       "please use the included driver from your kernel"
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
+#error "This driver doesn't support kernel versions lower than v4.9, " \
+       "please use the driver from https://github.com/arter97/exfat-linux/tree/old"
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
 #include <linux/iversion.h>
 #else
