@@ -1,3 +1,11 @@
+exfat-dkms (5.8~2arter97) UNRELEASED; urgency=medium
+
+  * Applied fixes from Linux v5.8-rc4
+  * Fixed sanity-checks on allow_utime and discard mount options
+  * Added build-time error messages for unsupported kernel versions
+
+ -- Park Ju Hyung <qkrwngud825@gmail.com>  Wed, 01 Jul 2020 02:47:26 +0900
+
 exfat-dkms (5.8~1arter97) UNRELEASED; urgency=medium
 
   * Rebased to Linux mainline's drivers
