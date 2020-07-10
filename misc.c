@@ -64,7 +64,7 @@ void exfat_msg(struct super_block *sb, const char *level, const char *fmt, ...)
 #define SECS_PER_MIN    (60)
 #define TIMEZONE_SEC(x)	((x) * 15 * SECS_PER_MIN)
 
-static void exfat_adjust_tz(struct timespec64 *ts, u8 tz_off)
+static void exfat_adjust_tz(exfat_timespec_t *ts, u8 tz_off)
 {
 	if (tz_off <= 0x3F)
 		ts->tv_sec -= TIMEZONE_SEC(tz_off);
@@ -73,7 +73,7 @@ static void exfat_adjust_tz(struct timespec64 *ts, u8 tz_off)
 }
 
 /* Convert a EXFAT time/date pair to a UNIX date (seconds since 1 1 70). */
-void exfat_get_entry_time(struct exfat_sb_info *sbi, struct timespec64 *ts,
+void exfat_get_entry_time(struct exfat_sb_info *sbi, exfat_timespec_t *ts,
 		u8 tz, __le16 time, __le16 date, u8 time_cs)
 {
 	u16 t = le16_to_cpu(time);
@@ -99,7 +99,7 @@ void exfat_get_entry_time(struct exfat_sb_info *sbi, struct timespec64 *ts,
 }
 
 /* Convert linear UNIX date to a EXFAT time/date pair. */
-void exfat_set_entry_time(struct exfat_sb_info *sbi, struct timespec64 *ts,
+void exfat_set_entry_time(struct exfat_sb_info *sbi, exfat_timespec_t *ts,
 		u8 *tz, __le16 *time, __le16 *date, u8 *time_cs)
 {
 	struct tm tm;
@@ -129,7 +129,7 @@ void exfat_set_entry_time(struct exfat_sb_info *sbi, struct timespec64 *ts,
  * (There is no 10msIncrement field for access_time unlike create/modify_time)
  * atime also has only a 2-second resolution.
  */
-void exfat_truncate_atime(struct timespec64 *ts)
+void exfat_truncate_atime(exfat_timespec_t *ts)
 {
 	ts->tv_sec = round_down(ts->tv_sec, 2);
 	ts->tv_nsec = 0;

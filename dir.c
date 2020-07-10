@@ -439,7 +439,7 @@ int exfat_init_dir_entry(struct inode *inode, struct exfat_chain *p_dir,
 {
 	struct super_block *sb = inode->i_sb;
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
-	struct timespec64 ts = current_time(inode);
+	exfat_timespec_t ts = current_time(inode);
 	sector_t sector;
 	struct exfat_dentry *ep;
 	struct buffer_head *bh;
